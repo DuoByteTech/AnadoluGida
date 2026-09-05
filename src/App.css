@@ -1,0 +1,66 @@
+/* =======================================================
+   CATEGORY SLIDER - Custom Pagination Styling
+   -------------------------------------------------------
+   Bu bölüm sadece CategorySlider içindeki custom
+   pagination container (.category-pagination) için geçerlidir.
+   Swiper'ın default bullet rengini override eder.
+   ======================================================= */
+
+/* Normal (pasif) bullet */
+.category-pagination .swiper-pagination-bullet {
+  background-color: #f87171; /* Tailwind error-400 */
+  opacity: 0.4;
+}
+
+/* Aktif bullet */
+.category-pagination .swiper-pagination-bullet-active {
+  background-color: #ef4444; /* Tailwind error-500 */
+  opacity: 1;
+}
+
+
+
+/* =======================================================
+   HERO CAROUSEL - Pagination & Navigation Styling
+   -------------------------------------------------------
+   Bu bölüm yalnızca hero carousel (.hero-swiper) için geçerlidir.
+   Diğer swiper bileşenlerini etkilemez.
+   Pagination bullet ve navigation ok renklerini özelleştirir.
+   ======================================================= */
+
+/* Hero pagination normal bullet */
+.hero-swiper .swiper-pagination-bullet {
+  background-color: hsl(var(--er, 0 84% 60%)); 
+  /* DaisyUI error rengi (yoksa fallback kırmızı) */
+  opacity: 0.4;
+}
+
+/* Hero pagination aktif bullet */
+.hero-swiper .swiper-pagination-bullet-active {
+  background-color: hsl(var(--er, 0 84% 60%));
+  opacity: 1;
+}
+
+/* Hero navigation ok renkleri */
+.hero-swiper .swiper-button-next,
+.hero-swiper .swiper-button-prev {
+  color: #ef4444; /* Tailwind error-500 */
+}
+
+
+
+/* Tüm input, textarea ve select focus outline kaldır */
+input,
+textarea,
+select {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #ef4444 !important;
+}

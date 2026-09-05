@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: light --default;
+}
+
+@plugin "daisyui/theme" {
+  name: "mytheme";
+  default: true;
+  /* set as default */
+}
+
+@theme {
+  --container {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+}
