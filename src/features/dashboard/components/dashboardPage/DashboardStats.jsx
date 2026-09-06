@@ -1,5 +1,6 @@
+import { Link } from "react-router-dom";
+
 import Card from "@/components/ui/Card";
-import Button from "@/components/ui/Button";
 import { CardTitle } from "@/components/ui/Typography";
 
 import {
@@ -9,48 +10,53 @@ import {
   TagIcon,
 } from "@heroicons/react/24/outline";
 
-const DashboardStats = ({ productCount }) => {
-  const stats = [
+const DashboardStats = ({ stats }) => {
+  const items = [
+    {
+      title: "Ürünler",
+      count: stats.products,
+      button: "Ürün Ekle",
+      path: "/dashboard/products/new",
+      icon: CubeIcon,
+    },
     {
       title: "Kategoriler",
-      count: "10",
+      count: stats.categories,
       button: "Kategori Ekle",
+      path: "/dashboard/categories/new",
       icon: Squares2X2Icon,
     },
     {
       title: "Alt Kategoriler",
-      count: "24",
+      count: stats.subcategories,
       button: "Alt Kategori Ekle",
+      path: "/dashboard/subcategories/new",
       icon: QueueListIcon,
     },
     {
       title: "Markalar",
-      count: "18",
+      count: stats.brands,
       button: "Marka Ekle",
+      path: "/dashboard/brands/new",
       icon: TagIcon,
-    },
-    {
-      title: "Ürünler",
-      count: productCount,
-      button: "Ürün Ekle",
-      icon: CubeIcon,
     },
   ];
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {stats.map((item, index) => {
+      {items.map((item) => {
         const Icon = item.icon;
 
         return (
           <Card
-            key={index}
+            key={item.title}
             className="transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
           >
             <div className="card-body space-y-4">
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle>{item.title}</CardTitle>
+
                   <p className="text-sm text-base-content/70">
                     {item.count} adet
                   </p>
@@ -61,9 +67,9 @@ const DashboardStats = ({ productCount }) => {
                 </div>
               </div>
 
-              <Button className="w-full btn-error text-white">
+              <Link to={item.path} className="btn btn-error w-full text-white">
                 {item.button}
-              </Button>
+              </Link>
             </div>
           </Card>
         );

@@ -4,7 +4,7 @@ import { products } from "@/features/shop/data/products";
 
 const BrandTableRow = ({ brand, onDelete }) => {
   const productCount = products.filter(
-    (p) => p.brandSlug === brand.slug
+    (p) => p.brandSlug === brand.slug,
   ).length;
 
   const modalId = `delete_brand_modal_${brand.id}`;
@@ -51,9 +51,7 @@ const BrandTableRow = ({ brand, onDelete }) => {
               Aktif
             </span>
           ) : (
-            <span className="badge badge-error badge-sm text-white">
-              Pasif
-            </span>
+            <span className="badge badge-error badge-sm text-white">Pasif</span>
           )}
         </td>
 
@@ -87,11 +85,7 @@ const BrandTableRow = ({ brand, onDelete }) => {
           </p>
 
           <div className="modal-action">
-            <button
-              type="button"
-              className="btn"
-              onClick={closeModal}
-            >
+            <button type="button" className="btn" onClick={closeModal}>
               İptal
             </button>
 

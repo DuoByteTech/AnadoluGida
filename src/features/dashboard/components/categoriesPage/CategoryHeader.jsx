@@ -8,7 +8,7 @@ const CategoryHeader = () => {
       url={"categories/new"}
       linkText={"Kategori Ekle"}
     />
-  )
+  );
 };
 
 export default CategoryHeader;

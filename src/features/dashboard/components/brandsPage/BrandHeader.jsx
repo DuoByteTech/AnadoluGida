@@ -8,7 +8,7 @@ const BrandHeader = () => {
       url={"brands/new"}
       linkText={"Marka Ekle"}
     />
-  )
+  );
 };
 
 export default BrandHeader;

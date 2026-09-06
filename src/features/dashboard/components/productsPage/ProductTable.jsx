@@ -20,6 +20,7 @@ const ProductTable = ({ products, onDelete }) => {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <CardTitle>Ürün Listesi</CardTitle>
+
             <p className="text-sm text-base-content/70">
               Toplam {products.length} ürün listeleniyor
             </p>
@@ -32,7 +33,6 @@ const ProductTable = ({ products, onDelete }) => {
           <table className="table table-zebra">
             <thead className="bg-base-200/60">
               <tr>
-                <th>#</th>
                 <th>Ürün</th>
                 <th>Kategori</th>
                 <th>Alt Kategori</th>

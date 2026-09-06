@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
+
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
   const modalId = `delete_product_modal_${product.id}`;
 
   const openModal = () => {
-    document.getElementById(modalId).showModal();
+    document.getElementById(modalId)?.showModal();
   };
 
   const closeModal = () => {
-    document.getElementById(modalId).close();
+    document.getElementById(modalId)?.close();
   };
 
   const handleDelete = () => {
@@ -23,38 +24,43 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
   return (
     <>
       <tr className="hover">
-        <th>{product.id}</th>
-
         <td>
           <div className="flex items-center gap-3">
             <div className="avatar">
               <div className="h-12 w-12 rounded-xl bg-base-200 p-1">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="h-full w-full object-contain"
-                />
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-base-content/40">
+                    Görsel yok
+                  </div>
+                )}
               </div>
             </div>
 
             <div>
               <div className="font-semibold">{product.name}</div>
-              <div className="text-xs text-base-content/60">
-                slug: {product.slug}
-              </div>
+
+              <div className="text-xs text-base-content/60">{product.slug}</div>
             </div>
           </div>
         </td>
 
         <td>{formatCategoryName(product.category)}</td>
-        <td>{product.subcategory}</td>
-        <td>{product.brand}</td>
+
+        <td>{product.subcategory || "-"}</td>
+
+        <td>{product.brand || "-"}</td>
 
         <td>
           <div className="flex flex-col">
             <span className="font-semibold">€{product.price.toFixed(2)}</span>
 
-            {product.oldPrice && (
+            {product.oldPrice !== null && (
               <span className="text-xs text-base-content/50 line-through">
                 €{product.oldPrice.toFixed(2)}
               </span>
@@ -63,15 +69,21 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
         </td>
 
         <td>
-          {product.isDiscounted ? (
-            <span className="badge badge-error badge-sm text-white">
-              İndirimli
-            </span>
-          ) : (
-            <span className="badge badge-success badge-sm text-white">
-              Aktif
-            </span>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {product.isActive ? (
+              <span className="badge badge-success badge-sm text-white">
+                Aktif
+              </span>
+            ) : (
+              <span className="badge badge-ghost badge-sm">Pasif</span>
+            )}
+
+            {product.isDiscounted && (
+              <span className="badge badge-error badge-sm text-white">
+                İndirimli
+              </span>
+            )}
+          </div>
         </td>
 
         <td>
@@ -99,6 +111,7 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
       <dialog id={modalId} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold text-error">Silme Onayı</h3>
+
           <p className="py-4">
             <b>{product.name}</b> ürününü silmek istiyor musunuz?
           </p>
