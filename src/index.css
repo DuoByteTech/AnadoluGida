@@ -11,6 +11,50 @@
 }
 
 @theme {
+  /* =========================
+     ANADOLU GIDA - GREEN
+     ========================= */
+
+  --color-brand-green-50: #f4f6f1;
+  --color-brand-green-100: #e5eadf;
+  --color-brand-green-200: #ccd6c1;
+  --color-brand-green-300: #aab99b;
+  --color-brand-green-400: #83976f;
+
+  --color-brand-green-500: #64794f;
+  --color-brand-green-600: #4a5d3a;
+  --color-brand-green-700: #39492f;
+  --color-brand-green-800: #2d3a27;
+  --color-brand-green-900: #263123;
+  --color-brand-green-950: #131b11;
+
+  /* =========================
+        ANADOLU GIDA - RED
+        ========================= */
+
+  --color-brand-red-50: #fff4f1;
+  --color-brand-red-100: #ffe4de;
+  --color-brand-red-200: #ffcfc4;
+  --color-brand-red-300: #f5a898;
+  --color-brand-red-400: #e77c69;
+
+  --color-brand-red-500: #d85c4a;
+  --color-brand-red-600: #bd4939;
+  --color-brand-red-700: #9d3c30;
+  --color-brand-red-800: #81352d;
+  --color-brand-red-900: #6b302a;
+  --color-brand-red-950: #3a1713;
+
+  /* =========================
+        ANADOLU GIDA - CREAM
+        ========================= */
+
+  --color-brand-cream-50: #fffdf8;
+  --color-brand-cream-100: #fff7e8;
+  --color-brand-cream-200: #f8edd6;
+  --color-brand-cream-300: #e9ddc5;
+  --color-brand-cream-400: #ddd8c5;
+
   --container {
     max-width: 1280px;
     margin: 0 auto;

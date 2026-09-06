@@ -2,43 +2,56 @@ import { FaInstagram, FaFacebookF } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import navItems from "./constants/navItems";
 
-const NAV_COMPANY = ["Über uns", "Kontakt"];
-
 const Footer = () => {
   return (
     <footer className="w-full">
-      {/* üst: koyu kırmızı + gradient + border */}
-      <div className="bg-gradient-to-b from-error to-error/90 text-error-content">
+      <div className="bg-gradient-to-b from-brand-green-600 to-brand-green-700 text-brand-cream-100">
         <div className="container mx-auto px-4">
-          <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 py-12">
+          <div className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
             {/* Brand */}
             <div>
-              <h3 className="text-lg font-semibold tracking-tight">
+              <h3 className="text-lg font-semibold tracking-tight text-brand-cream-100">
                 Anadolu Gıda
               </h3>
-              <p className="mt-3 text-sm text-error-content/80 leading-relaxed">
+
+              <p className="mt-3 text-sm leading-relaxed text-brand-cream-400">
                 Taze ve güvenilir gıda ürünleri.
               </p>
 
-              {/* küçük accent çizgi */}
-              <div className="mt-5 h-[2px] w-10 rounded-full bg-error-content/70" />
+              <div className="mt-5 h-[2px] w-10 rounded-full bg-brand-red-500" />
             </div>
 
             {/* Shop */}
             <div>
-              <h6 className="text-xs font-semibold tracking-[0.18em] uppercase text-error-content/80">
+              <h6 className="text-xs font-semibold tracking-[0.18em] uppercase text-brand-cream-100/70">
                 Shop
               </h6>
+
               <div className="mt-4 flex flex-col gap-2">
                 {navItems
-                  .filter((item) => item.url !== "/about" && item.url !== "/contact")
+                  .filter(
+                    (item) => item.url !== "/about" && item.url !== "/contact",
+                  )
                   .map((item) => (
                     <NavLink
                       key={item.id}
                       to={item.url}
-                      className="w-fit text-sm text-error-content/80 hover:text-error-content transition"
+                      className="group w-fit text-sm text-brand-cream-400 transition-colors hover:text-brand-cream-100"
                     >
-                      <span className="relative after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:bg-error-content/70 after:w-0 after:transition-all after:duration-300 hover:after:w-full">
+                      <span
+                        className="
+                          relative
+                          after:absolute
+                          after:-bottom-1
+                          after:left-0
+                          after:h-[2px]
+                          after:w-0
+                          after:bg-brand-red-500
+                          after:transition-all
+                          after:duration-300
+                          group-hover:after:w-full
+                        "
+                      >
                         {item.name}
                       </span>
                     </NavLink>
@@ -48,19 +61,38 @@ const Footer = () => {
 
             {/* Company */}
             <div>
-              <h6 className="text-xs font-semibold tracking-[0.18em] uppercase text-error-content/80">
+              <h6 className="text-xs font-semibold tracking-[0.18em] uppercase text-brand-cream-100/70">
                 Company
               </h6>
+
               <div className="mt-4 flex flex-col gap-2">
                 {navItems
-                  .filter((item) => item.url !== "/" && item.url !== "/angebote" && item.url !== "/shop")
+                  .filter(
+                    (item) =>
+                      item.url !== "/" &&
+                      item.url !== "/angebote" &&
+                      item.url !== "/shop",
+                  )
                   .map((item) => (
                     <NavLink
                       key={item.id}
                       to={item.url}
-                      className="w-fit text-sm text-error-content/80 hover:text-error-content transition"
+                      className="group w-fit text-sm text-brand-cream-400 transition-colors hover:text-brand-cream-100"
                     >
-                      <span className="relative after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:bg-error-content/70 after:w-0 after:transition-all after:duration-300 hover:after:w-full">
+                      <span
+                        className="
+                          relative
+                          after:absolute
+                          after:-bottom-1
+                          after:left-0
+                          after:h-[2px]
+                          after:w-0
+                          after:bg-brand-red-500
+                          after:transition-all
+                          after:duration-300
+                          group-hover:after:w-full
+                        "
+                      >
                         {item.name}
                       </span>
                     </NavLink>
@@ -70,48 +102,57 @@ const Footer = () => {
 
             {/* Social Media */}
             <div>
-              <h6 className="text-xs font-semibold tracking-[0.18em] uppercase text-error-content/80">
+              <h6 className="text-xs font-semibold tracking-[0.18em] uppercase text-brand-cream-100/70">
                 Social Media
               </h6>
 
               <div className="mt-4 flex items-center gap-3">
                 <a
                   href="#"
-                  className="group flex items-center justify-center w-11 h-11 rounded-full
-                             border border-error-content/25
-                             bg-error/30 backdrop-blur
-                             hover:bg-error/40 hover:border-error-content/40
-                             transition-all duration-200 hover:-translate-y-0.5"
                   aria-label="Instagram"
+                  className="
+                    group
+                    flex h-11 w-11 items-center justify-center
+                    rounded-full
+                    border border-brand-cream-100/20
+                    bg-brand-cream-100/10
+                    transition-all duration-200
+                    hover:-translate-y-0.5
+                    hover:border-brand-red-500
+                    hover:bg-brand-red-500
+                  "
                 >
-                  <FaInstagram className="w-4 h-4 text-error-content/90 group-hover:text-error-content transition" />
+                  <FaInstagram className="h-4 w-4 text-brand-cream-100 transition-colors" />
                 </a>
 
                 <a
                   href="#"
-                  className="group flex items-center justify-center w-11 h-11 rounded-full
-                             border border-error-content/25
-                             bg-error/30 backdrop-blur
-                             hover:bg-error/40 hover:border-error-content/40
-                             transition-all duration-200 hover:-translate-y-0.5"
                   aria-label="Facebook"
+                  className="
+                    group
+                    flex h-11 w-11 items-center justify-center
+                    rounded-full
+                    border border-brand-cream-100/20
+                    bg-brand-cream-100/10
+                    transition-all duration-200
+                    hover:-translate-y-0.5
+                    hover:border-brand-red-500
+                    hover:bg-brand-red-500
+                  "
                 >
-                  <FaFacebookF className="w-4 h-4 text-error-content/90 group-hover:text-error-content transition" />
+                  <FaFacebookF className="h-4 w-4 text-brand-cream-100 transition-colors" />
                 </a>
               </div>
             </div>
           </div>
 
-          {/* divider */}
-          <div className="h-px w-full bg-error-content/15" />
+          {/* Divider */}
+          <div className="h-px w-full bg-brand-cream-100/15" />
 
-          {/* alt bar: daha koyu + küçük yazı */}
-          <div className="py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-error-content/80">
+          {/* Bottom */}
+          <div className="flex flex-col items-center py-5 text-sm text-brand-cream-400 sm:flex-row">
             <p>
               © {new Date().getFullYear()} Anadolu Gıda — All rights reserved
-            </p>
-            <p className="text-error-content/60">
-              Built with ♥ in Vite + DaisyUI
             </p>
           </div>
         </div>

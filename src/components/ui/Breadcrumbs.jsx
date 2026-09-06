@@ -12,12 +12,8 @@ const Breadcrumbs = () => {
 
   return (
     <nav className="flex items-center text-sm mb-4 text-base-content/70">
-
       {/* Startseite */}
-      <NavLink
-        to="/"
-        className="hover:text-base-content transition"
-      >
+      <NavLink to="/" className="hover:text-base-content transition">
         Startseite
       </NavLink>
 
@@ -27,10 +23,7 @@ const Breadcrumbs = () => {
       {isShopPage ? (
         <span className="font-medium text-base-content">Shop</span>
       ) : (
-        <NavLink
-          to="/shop"
-          className="hover:text-base-content transition"
-        >
+        <NavLink to="/shop" className="hover:text-base-content transition">
           Shop
         </NavLink>
       )}
@@ -39,9 +32,7 @@ const Breadcrumbs = () => {
       {product && (
         <>
           <ChevronRightIcon className="w-4 h-4 mx-2 opacity-50" />
-          <span className="font-medium text-base-content">
-            {product.name}
-          </span>
+          <span className="font-medium text-base-content">{product.name}</span>
         </>
       )}
     </nav>

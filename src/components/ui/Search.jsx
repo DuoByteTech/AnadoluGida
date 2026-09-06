@@ -9,9 +9,7 @@ const Search = ({
 }) => {
   return (
     <div className={`relative w-full max-w-md ${className}`}>
-      <MagnifyingGlassIcon
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-5 w-5 text-base-content/40 pointer-events-none"
-      />
+      <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-5 w-5 text-base-content/40 pointer-events-none" />
 
       <input
         type="text"
