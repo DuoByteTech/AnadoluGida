@@ -1,59 +1,71 @@
 import { supabase } from "@/lib/supabase/client";
 
-const mapCategory = (category) => ({
-  id: category.id,
-  name: category.name,
-  slug: category.slug,
-  description: category.description,
-  isActive: category.is_active,
-  sortOrder: category.sort_order,
-  createdAt: category.created_at,
-  updatedAt: category.updated_at,
-  productCount: category.products?.[0]?.count ?? 0,
+const mapSubCategory = (item) => ({
+  id: item.id,
+  categoryId: item.category_id,
+  categoryName: item.categories?.name ?? "",
+  name: item.name,
+  slug: item.slug,
+  description: item.description ?? "",
+  isActive: item.is_active,
+  createdAt: item.created_at,
+  updatedAt: item.updated_at,
+  productCount: item.products?.[0]?.count ?? 0,
 });
 
-export const getCategories = async () => {
+export const getSubCategories = async () => {
   const { data, error } = await supabase
-    .from("categories")
+    .from("subcategories")
     .select(
-      `;
-(id,
-  name,
-  slug,
-  description,
-  is_active,
-  sort_order,
-  created_at,
-  updated_at,
-  products(count)`,
+      `
+      id,
+      category_id,
+      name,
+      slug,
+      description,
+      is_active,
+      created_at,
+      updated_at,
+      categories (
+        id,
+        name
+      ),
+      products(count)
+    `,
     )
-    .order("sort_order", { ascending: true })
-    .order("name", { ascending: true });
+    .order("name", {
+      ascending: true,
+    });
 
   if (error) {
     throw error;
   }
 
-  return (data || []).map(mapCategory);
+  return (data || []).map(mapSubCategory);
 };
 
-export const getCategoryById = async (id) => {
+export const getSubCategoryById = async (id) => {
   if (!id) {
-    throw new Error("CATEGORY_ID_REQUIRED");
+    throw new Error("SUBCATEGORY_ID_REQUIRED");
   }
 
   const { data, error } = await supabase
-    .from("categories")
+    .from("subcategories")
     .select(
-      `);
-(id,
-  name,
-  slug,
-  description,
-  is_active,
-  sort_order,
-  created_at,
-  updated_at`,
+      `
+      id,
+      category_id,
+      name,
+      slug,
+      description,
+      is_active,
+      created_at,
+      updated_at,
+      categories (
+        id,
+        name
+      )
+    `,
     )
     .eq("id", id)
     .single();
@@ -62,66 +74,96 @@ export const getCategoryById = async (id) => {
     throw error;
   }
 
-  return mapCategory(data);
+  return mapSubCategory(data);
 };
 
-export const createCategory = async ({
+export const createSubCategory = async ({
+  categoryId,
   name,
   description = null,
   isActive = true,
-  sortOrder = 0,
 }) => {
   const { data, error } = await supabase
-    .from("categories")
+    .from("subcategories")
     .insert({
+      category_id: categoryId,
       name: name.trim(),
       description: description?.trim() || null,
       is_active: isActive,
-      sort_order: sortOrder,
     })
-    .select()
+    .select(
+      `
+      id,
+      category_id,
+      name,
+      slug,
+      description,
+      is_active,
+      created_at,
+      updated_at,
+      categories (
+        id,
+        name
+      )
+    `,
+    )
     .single();
 
   if (error) {
     throw error;
   }
 
-  return mapCategory(data);
+  return mapSubCategory(data);
 };
 
-export const updateCategory = async (
+export const updateSubCategory = async (
   id,
-  { name, description = null, isActive = true, sortOrder = 0 },
+  { categoryId, name, description = null, isActive = true },
 ) => {
   if (!id) {
-    throw new Error("CATEGORY_ID_REQUIRED");
+    throw new Error("SUBCATEGORY_ID_REQUIRED");
   }
 
   const { data, error } = await supabase
-    .from("categories")
+    .from("subcategories")
     .update({
+      category_id: categoryId,
       name: name.trim(),
       description: description?.trim() || null,
       is_active: isActive,
-      sort_order: sortOrder,
     })
     .eq("id", id)
-    .select()
+    .select(
+      `
+      id,
+      category_id,
+      name,
+      slug,
+      description,
+      is_active,
+      created_at,
+      updated_at,
+      categories (
+        id,
+        name
+      )
+    `,
+    )
     .single();
 
   if (error) {
     throw error;
   }
 
-  return mapCategory(data);
+  return mapSubCategory(data);
 };
 
-export const deleteCategory = async (id) => {
+export const deleteSubCategory = async (id) => {
   if (!id) {
-    throw new Error("CATEGORY_ID_REQUIRED");
+    throw new Error("SUBCATEGORY_ID_REQUIRED");
   }
 
-  const { error } = await supabase.from("categories").delete().eq("id", id);
+  const { error } = await supabase.from("subcategories").delete().eq("id", id);
 
   if (error) {
     throw error;

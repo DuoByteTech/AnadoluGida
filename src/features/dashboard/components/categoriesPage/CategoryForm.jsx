@@ -1,29 +1,54 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import PageHeader from "../PageHeader";
 
-import {
-  createCategory,
-  updateCategory,
-} from "../../services/category.service";
+import { getCategories } from "../../services/category.service";
 
-const CategoryForm = ({ isEditMode, initialData }) => {
+import {
+  createSubCategory,
+  updateSubCategory,
+} from "../../services/subCategory.service";
+
+const SubCategoryForm = ({ isEditMode, initialData }) => {
   const navigate = useNavigate();
 
+  const [categories, setCategories] = useState([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
+    categoryId: initialData?.categoryId || "",
     name: initialData?.name || "",
     description: initialData?.description || "",
-    sortOrder: initialData?.sortOrder ?? 0,
     isActive: initialData?.isActive ?? true,
   });
 
   useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setIsLoadingCategories(true);
+
+        const data = await getCategories();
+
+        setCategories(data);
+      } catch (err) {
+        console.error("Kategoriler yüklenirken hata oluştu:", err);
+
+        alert("Kategori listesi yüklenemedi.");
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
     setFormData({
+      categoryId: initialData?.categoryId || "",
       name: initialData?.name || "",
       description: initialData?.description || "",
-      sortOrder: initialData?.sortOrder ?? 0,
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -44,19 +69,15 @@ const CategoryForm = ({ isEditMode, initialData }) => {
       return;
     }
 
-    const name = formData.name.trim();
-
-    if (!name) {
-      alert("Kategori adı boş bırakılamaz.");
-
+    if (!formData.categoryId) {
+      alert("Lütfen bir kategori seçin.");
       return;
     }
 
-    const sortOrder = Number(formData.sortOrder);
+    const name = formData.name.trim();
 
-    if (Number.isNaN(sortOrder) || sortOrder < 0) {
-      alert("Sıralama değeri 0 veya daha büyük olmalıdır.");
-
+    if (!name) {
+      alert("Alt kategori adı boş bırakılamaz.");
       return;
     }
 
@@ -64,29 +85,28 @@ const CategoryForm = ({ isEditMode, initialData }) => {
       setIsSubmitting(true);
 
       const payload = {
+        categoryId: formData.categoryId,
         name,
         description: formData.description,
         isActive: formData.isActive,
-        sortOrder,
       };
 
       if (isEditMode) {
-        await updateCategory(initialData.id, payload);
+        await updateSubCategory(initialData.id, payload);
       } else {
-        await createCategory(payload);
+        await createSubCategory(payload);
       }
 
-      navigate("/dashboard/categories");
+      navigate("/dashboard/subcategories");
     } catch (err) {
-      console.error("Kategori kaydedilirken hata oluştu:", err);
+      console.error("Alt kategori kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu kategori adı zaten kullanılıyor.");
-
+        alert("Bu alt kategori zaten kullanılıyor.");
         return;
       }
 
-      alert("Kategori kaydedilirken bir hata oluştu.");
+      alert("Alt kategori kaydedilirken bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,26 +115,50 @@ const CategoryForm = ({ isEditMode, initialData }) => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isEditMode ? "Kategori Düzenle" : "Yeni Kategori"}
+        title={isEditMode ? "Alt Kategori Düzenle" : "Yeni Alt Kategori"}
         description={
           isEditMode
-            ? "Kategori bilgilerini buradan güncelleyebilirsiniz."
-            : "Yeni kategori ekleyebilirsiniz."
+            ? "Alt kategori bilgilerini buradan güncelleyebilirsiniz."
+            : "Yeni alt kategori ekleyebilirsiniz."
         }
-        url="categories"
-        linkText="Kategorilere Dön"
+        url="subcategories"
+        linkText="Alt Kategorilere Dön"
       />
 
       <div className="rounded-xl bg-base-100 p-6 shadow-md">
         <form className="space-y-6" onSubmit={handleSubmit}>
           <fieldset className="fieldset">
-            <legend className="fieldset-legend">Kategori Adı</legend>
+            <legend className="fieldset-legend">Kategori Seç</legend>
+
+            <select
+              name="categoryId"
+              className="select select-bordered w-full"
+              value={formData.categoryId}
+              onChange={handleChange}
+              disabled={isSubmitting || isLoadingCategories}
+            >
+              <option value="">
+                {isLoadingCategories
+                  ? "Kategoriler yükleniyor..."
+                  : "Kategori seçin"}
+              </option>
+
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Alt Kategori Adı</legend>
 
             <input
               type="text"
               name="name"
               className="input input-bordered w-full"
-              placeholder="Örn: Meyve & Sebze"
+              placeholder="Örn: Elma"
               value={formData.name}
               onChange={handleChange}
               disabled={isSubmitting}
@@ -127,23 +171,8 @@ const CategoryForm = ({ isEditMode, initialData }) => {
             <textarea
               name="description"
               className="textarea textarea-bordered min-h-28 w-full"
-              placeholder="Kategori açıklaması..."
+              placeholder="Alt kategori açıklaması..."
               value={formData.description}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Sıralama</legend>
-
-            <input
-              type="number"
-              min="0"
-              step="1"
-              name="sortOrder"
-              className="input input-bordered w-full"
-              value={formData.sortOrder}
               onChange={handleChange}
               disabled={isSubmitting}
             />
@@ -163,7 +192,7 @@ const CategoryForm = ({ isEditMode, initialData }) => {
 
           <div className="flex justify-end gap-3 pt-4">
             <Link
-              to="/dashboard/categories"
+              to="/dashboard/subcategories"
               className={`btn btn-outline rounded-xl ${
                 isSubmitting ? "pointer-events-none opacity-50" : ""
               }`}
@@ -183,8 +212,8 @@ const CategoryForm = ({ isEditMode, initialData }) => {
               {isSubmitting
                 ? "Kaydediliyor..."
                 : isEditMode
-                  ? "Kategoriyi Güncelle"
-                  : "Kategori Ekle"}
+                  ? "Alt Kategoriyi Güncelle"
+                  : "Alt Kategori Ekle"}
             </button>
           </div>
         </form>
@@ -193,4 +222,4 @@ const CategoryForm = ({ isEditMode, initialData }) => {
   );
 };
 
-export default CategoryForm;
+export default SubCategoryForm;
