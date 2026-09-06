@@ -12,16 +12,12 @@ const BrandForm = ({ isEditMode, initialData }) => {
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
-    description: initialData?.description || "",
-    websiteUrl: initialData?.websiteUrl || "",
     isActive: initialData?.isActive ?? true,
   });
 
   useEffect(() => {
     setFormData({
       name: initialData?.name || "",
-      description: initialData?.description || "",
-      websiteUrl: initialData?.websiteUrl || "",
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -54,8 +50,6 @@ const BrandForm = ({ isEditMode, initialData }) => {
 
       const payload = {
         name,
-        description: formData.description,
-        websiteUrl: formData.websiteUrl,
         isActive: formData.isActive,
       };
 
@@ -104,33 +98,6 @@ const BrandForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="Örn: Sera"
               value={formData.name}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Açıklama</legend>
-
-            <textarea
-              name="description"
-              className="textarea textarea-bordered min-h-28 w-full"
-              placeholder="Marka açıklaması..."
-              value={formData.description}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Web Sitesi</legend>
-
-            <input
-              type="url"
-              name="websiteUrl"
-              className="input input-bordered w-full"
-              placeholder="https://example.com"
-              value={formData.websiteUrl}
               onChange={handleChange}
               disabled={isSubmitting}
             />

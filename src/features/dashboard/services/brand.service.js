@@ -4,8 +4,6 @@ const mapBrand = (brand) => ({
   id: brand.id,
   name: brand.name,
   slug: brand.slug,
-  description: brand.description ?? "",
-  websiteUrl: brand.website_url ?? "",
   isActive: brand.is_active,
   createdAt: brand.created_at,
   updatedAt: brand.updated_at,
@@ -20,8 +18,6 @@ export const getBrands = async () => {
       id,
       name,
       slug,
-      description,
-      website_url,
       is_active,
       created_at,
       updated_at,
@@ -51,8 +47,6 @@ export const getBrandById = async (id) => {
       id,
       name,
       slug,
-      description,
-      website_url,
       is_active,
       created_at,
       updated_at
@@ -68,18 +62,11 @@ export const getBrandById = async (id) => {
   return mapBrand(data);
 };
 
-export const createBrand = async ({
-  name,
-  description = null,
-  websiteUrl = null,
-  isActive = true,
-}) => {
+export const createBrand = async ({ name, isActive = true }) => {
   const { data, error } = await supabase
     .from("brands")
     .insert({
       name: name.trim(),
-      description: description?.trim() || null,
-      website_url: websiteUrl?.trim() || null,
       is_active: isActive,
     })
     .select()
@@ -92,10 +79,7 @@ export const createBrand = async ({
   return mapBrand(data);
 };
 
-export const updateBrand = async (
-  id,
-  { name, description = null, websiteUrl = null, isActive = true },
-) => {
+export const updateBrand = async (id, { name, isActive = true }) => {
   if (!id) {
     throw new Error("BRAND_ID_REQUIRED");
   }
@@ -104,8 +88,6 @@ export const updateBrand = async (
     .from("brands")
     .update({
       name: name.trim(),
-      description: description?.trim() || null,
-      website_url: websiteUrl?.trim() || null,
       is_active: isActive,
     })
     .eq("id", id)

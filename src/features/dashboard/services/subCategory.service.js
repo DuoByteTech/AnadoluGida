@@ -6,7 +6,6 @@ const mapSubCategory = (item) => ({
   categoryName: item.categories?.name ?? "",
   name: item.name,
   slug: item.slug,
-  description: item.description ?? "",
   isActive: item.is_active,
   createdAt: item.created_at,
   updatedAt: item.updated_at,
@@ -22,7 +21,6 @@ export const getSubCategories = async () => {
       category_id,
       name,
       slug,
-      description,
       is_active,
       created_at,
       updated_at,
@@ -57,7 +55,6 @@ export const getSubCategoryById = async (id) => {
       category_id,
       name,
       slug,
-      description,
       is_active,
       created_at,
       updated_at,
@@ -80,7 +77,6 @@ export const getSubCategoryById = async (id) => {
 export const createSubCategory = async ({
   categoryId,
   name,
-  description = null,
   isActive = true,
 }) => {
   const { data, error } = await supabase
@@ -88,7 +84,6 @@ export const createSubCategory = async ({
     .insert({
       category_id: categoryId,
       name: name.trim(),
-      description: description?.trim() || null,
       is_active: isActive,
     })
     .select(
@@ -97,7 +92,6 @@ export const createSubCategory = async ({
       category_id,
       name,
       slug,
-      description,
       is_active,
       created_at,
       updated_at,
@@ -118,7 +112,7 @@ export const createSubCategory = async ({
 
 export const updateSubCategory = async (
   id,
-  { categoryId, name, description = null, isActive = true },
+  { categoryId, name, isActive = true },
 ) => {
   if (!id) {
     throw new Error("SUBCATEGORY_ID_REQUIRED");
@@ -129,7 +123,6 @@ export const updateSubCategory = async (
     .update({
       category_id: categoryId,
       name: name.trim(),
-      description: description?.trim() || null,
       is_active: isActive,
     })
     .eq("id", id)
@@ -139,7 +132,6 @@ export const updateSubCategory = async (
       category_id,
       name,
       slug,
-      description,
       is_active,
       created_at,
       updated_at,

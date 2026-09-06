@@ -20,7 +20,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
   const [formData, setFormData] = useState({
     categoryId: initialData?.categoryId || "",
     name: initialData?.name || "",
-    description: initialData?.description || "",
     isActive: initialData?.isActive ?? true,
   });
 
@@ -48,7 +47,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
     setFormData({
       categoryId: initialData?.categoryId || "",
       name: initialData?.name || "",
-      description: initialData?.description || "",
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -87,7 +85,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
       const payload = {
         categoryId: formData.categoryId,
         name,
-        description: formData.description,
         isActive: formData.isActive,
       };
 
@@ -160,19 +157,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="Örn: Elma"
               value={formData.name}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Açıklama</legend>
-
-            <textarea
-              name="description"
-              className="textarea textarea-bordered min-h-28 w-full"
-              placeholder="Alt kategori açıklaması..."
-              value={formData.description}
               onChange={handleChange}
               disabled={isSubmitting}
             />

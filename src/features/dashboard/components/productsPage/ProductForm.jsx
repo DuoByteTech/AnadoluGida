@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-
 import { Link, useNavigate } from "react-router-dom";
 
 import PageHeader from "../PageHeader";
@@ -31,7 +30,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
     categoryId: "",
     subcategoryId: "",
     brandId: "",
-    description: "",
     price: "",
     oldPrice: "",
     badge: "",
@@ -71,29 +69,16 @@ const ProductForm = ({ isEditMode, initialData }) => {
   useEffect(() => {
     setFormData({
       name: initialData?.name || "",
-
       categoryId: initialData?.categoryId || "",
-
       subcategoryId: initialData?.subcategoryId || "",
-
       brandId: initialData?.brandId || "",
-
-      description: initialData?.description || "",
-
       price: initialData?.price ?? "",
-
       oldPrice: initialData?.oldPrice ?? "",
-
       badge: initialData?.badge || "",
-
       color: initialData?.color || "",
-
       rating: initialData?.rating ?? "",
-
       images: [],
-
       isDiscounted: initialData?.isDiscounted ?? false,
-
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -171,7 +156,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
       (Number(formData.rating) < 0 || Number(formData.rating) > 5)
     ) {
       alert("Puan 0 ile 5 arasında olmalıdır.");
-
       return false;
     }
 
@@ -191,14 +175,10 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
     const payload = {
       categoryId: formData.categoryId,
-
       subcategoryId: formData.subcategoryId,
-
       brandId: formData.brandId,
 
       name: formData.name.trim(),
-
-      description: formData.description,
 
       price: Number(formData.price),
 
@@ -211,7 +191,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
       rating: formData.rating !== "" ? Number(formData.rating) : 0,
 
       isDiscounted: formData.isDiscounted,
-
       isActive: formData.isActive,
     };
 
@@ -248,7 +227,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       if (err?.code === "23505") {
         alert("Bu ürün zaten kullanılıyor.");
-
         return;
       }
 
@@ -300,19 +278,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="Örn: Portakal"
               value={formData.name}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Açıklama</legend>
-
-            <textarea
-              name="description"
-              className="textarea textarea-bordered min-h-28 w-full"
-              placeholder="Ürün açıklaması..."
-              value={formData.description}
               onChange={handleChange}
               disabled={isSubmitting}
             />

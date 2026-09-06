@@ -43,7 +43,6 @@ const mapProduct = (product) => {
 
     name: product.name,
     slug: product.slug,
-    description: product.description ?? "",
 
     price: Number(product.price),
 
@@ -60,6 +59,7 @@ const mapProduct = (product) => {
     updatedAt: product.updated_at,
 
     images,
+
     image: images[0]?.url ?? null,
   };
 };
@@ -71,7 +71,6 @@ const PRODUCT_SELECT = `
   brand_id,
   name,
   slug,
-  description,
   price,
   old_price,
   badge,
@@ -148,7 +147,6 @@ export const createProduct = async ({
   subcategoryId = null,
   brandId = null,
   name,
-  description = null,
   price,
   oldPrice = null,
   badge = null,
@@ -167,8 +165,6 @@ export const createProduct = async ({
       brand_id: brandId || null,
 
       name: name.trim(),
-
-      description: description?.trim() || null,
 
       price: Number(price),
 
@@ -201,7 +197,6 @@ export const updateProduct = async (
     subcategoryId = null,
     brandId = null,
     name,
-    description = null,
     price,
     oldPrice = null,
     badge = null,
@@ -225,8 +220,6 @@ export const updateProduct = async (
       brand_id: brandId || null,
 
       name: name.trim(),
-
-      description: description?.trim() || null,
 
       price: Number(price),
 
@@ -269,11 +262,7 @@ export const createProductImages = async ({ productId, images }) => {
     object_key: image.key,
     content_type: image.contentType || null,
     file_size: image.size ?? null,
-
-    // Bu kalıyor:
-    // ürün görsellerinin kendi sırası.
     sort_order: index,
-
     is_primary: index === 0,
   }));
 

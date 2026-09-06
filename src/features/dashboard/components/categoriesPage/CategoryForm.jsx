@@ -15,14 +15,12 @@ const CategoryForm = ({ isEditMode, initialData }) => {
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
-    description: initialData?.description || "",
     isActive: initialData?.isActive ?? true,
   });
 
   useEffect(() => {
     setFormData({
       name: initialData?.name || "",
-      description: initialData?.description || "",
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -55,7 +53,6 @@ const CategoryForm = ({ isEditMode, initialData }) => {
 
       const payload = {
         name,
-        description: formData.description,
         isActive: formData.isActive,
       };
 
@@ -104,19 +101,6 @@ const CategoryForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="Örn: Meyve & Sebze"
               value={formData.name}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Açıklama</legend>
-
-            <textarea
-              name="description"
-              className="textarea textarea-bordered min-h-28 w-full"
-              placeholder="Kategori açıklaması..."
-              value={formData.description}
               onChange={handleChange}
               disabled={isSubmitting}
             />
