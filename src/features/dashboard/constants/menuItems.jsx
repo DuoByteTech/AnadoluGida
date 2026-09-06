@@ -26,14 +26,14 @@ const menuItems = [
     icon: <QueueListIcon className="size-5" />,
   },
   {
-    label: "Ürünler",
-    path: "/dashboard/products",
-    icon: <CubeIcon className="size-5" />,
-  },
-  {
     label: "Markalar",
     path: "/dashboard/brands",
     icon: <TagIcon className="size-5" />,
+  },
+  {
+    label: "Ürünler",
+    path: "/dashboard/products",
+    icon: <CubeIcon className="size-5" />,
   },
   {
     label: "Promosyonlar",
@@ -51,7 +51,7 @@ const menuItems = [
     label: "Çıkış",
     path: "/dashboard/logout",
     icon: <ArrowRightOnRectangleIcon className="size-5" />,
-  }
+  },
 ];
 
 export default menuItems;

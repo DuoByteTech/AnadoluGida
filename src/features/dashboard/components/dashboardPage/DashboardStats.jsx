@@ -24,16 +24,16 @@ const DashboardStats = ({ productCount }) => {
       icon: QueueListIcon,
     },
     {
-      title: "Ürünler",
-      count: productCount,
-      button: "Ürün Ekle",
-      icon: CubeIcon,
-    },
-    {
       title: "Markalar",
       count: "18",
       button: "Marka Ekle",
       icon: TagIcon,
+    },
+    {
+      title: "Ürünler",
+      count: productCount,
+      button: "Ürün Ekle",
+      icon: CubeIcon,
     },
   ];
 
@@ -51,7 +51,9 @@ const DashboardStats = ({ productCount }) => {
               <div className="flex items-start justify-between">
                 <div>
                   <CardTitle>{item.title}</CardTitle>
-                  <p className="text-sm text-base-content/70">{item.count} adet</p>
+                  <p className="text-sm text-base-content/70">
+                    {item.count} adet
+                  </p>
                 </div>
 
                 <div className="rounded-xl bg-base-200 p-2">

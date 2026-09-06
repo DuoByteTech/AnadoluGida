@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 import Search from "@/components/ui/Search";
-import { PhoneIcon, Bars3BottomRightIcon, } from "@heroicons/react/24/outline";
+import { PhoneIcon, Bars3BottomRightIcon } from "@heroicons/react/24/outline";
 
 import navItems from "../constants/navItems";
 import logo from "@/assets/anadolugida.png";
