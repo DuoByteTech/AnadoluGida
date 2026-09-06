@@ -1,26 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import PageHeader from "../PageHeader";
 
 import {
   createCategory,
   updateCategory,
 } from "../../services/category.service";
-
-const createSlug = (value) => {
-  return value
-    .trim()
-    .toLocaleLowerCase("tr-TR")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-};
 
 const CategoryForm = ({ isEditMode, initialData }) => {
   const navigate = useNavigate();
@@ -29,7 +14,6 @@ const CategoryForm = ({ isEditMode, initialData }) => {
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
-    slug: initialData?.slug || "",
     description: initialData?.description || "",
     sortOrder: initialData?.sortOrder ?? 0,
     isActive: initialData?.isActive ?? true,
@@ -38,7 +22,6 @@ const CategoryForm = ({ isEditMode, initialData }) => {
   useEffect(() => {
     setFormData({
       name: initialData?.name || "",
-      slug: initialData?.slug || "",
       description: initialData?.description || "",
       sortOrder: initialData?.sortOrder ?? 0,
       isActive: initialData?.isActive ?? true,
@@ -54,20 +37,6 @@ const CategoryForm = ({ isEditMode, initialData }) => {
     }));
   };
 
-  const handleNameChange = (e) => {
-    const value = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-      name: value,
-
-      slug:
-        !isEditMode || prev.slug === createSlug(prev.name)
-          ? createSlug(value)
-          : prev.slug,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -77,16 +46,8 @@ const CategoryForm = ({ isEditMode, initialData }) => {
 
     const name = formData.name.trim();
 
-    const slug = formData.slug.trim() || createSlug(name);
-
     if (!name) {
       alert("Kategori adı boş bırakılamaz.");
-
-      return;
-    }
-
-    if (!slug) {
-      alert("Geçerli bir slug oluşturulamadı.");
 
       return;
     }
@@ -104,7 +65,6 @@ const CategoryForm = ({ isEditMode, initialData }) => {
 
       const payload = {
         name,
-        slug,
         description: formData.description,
         isActive: formData.isActive,
         sortOrder,
@@ -121,7 +81,7 @@ const CategoryForm = ({ isEditMode, initialData }) => {
       console.error("Kategori kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu kategori adı veya slug zaten kullanılıyor.");
+        alert("Bu kategori adı zaten kullanılıyor.");
 
         return;
       }
@@ -156,20 +116,6 @@ const CategoryForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="Örn: Meyve & Sebze"
               value={formData.name}
-              onChange={handleNameChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Slug</legend>
-
-            <input
-              type="text"
-              name="slug"
-              className="input input-bordered w-full"
-              placeholder="meyve-sebze"
-              value={formData.slug}
               onChange={handleChange}
               disabled={isSubmitting}
             />

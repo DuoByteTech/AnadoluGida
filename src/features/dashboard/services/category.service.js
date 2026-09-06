@@ -16,24 +16,19 @@ export const getCategories = async () => {
   const { data, error } = await supabase
     .from("categories")
     .select(
-      `
-      id,
-      name,
-      slug,
-      description,
-      is_active,
-      sort_order,
-      created_at,
-      updated_at,
-      products(count)
-    `,
+      `;
+(id,
+  name,
+  slug,
+  description,
+  is_active,
+  sort_order,
+  created_at,
+  updated_at,
+  products(count)`,
     )
-    .order("sort_order", {
-      ascending: true,
-    })
-    .order("name", {
-      ascending: true,
-    });
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
 
   if (error) {
     throw error;
@@ -50,16 +45,15 @@ export const getCategoryById = async (id) => {
   const { data, error } = await supabase
     .from("categories")
     .select(
-      `
-      id,
-      name,
-      slug,
-      description,
-      is_active,
-      sort_order,
-      created_at,
-      updated_at
-    `,
+      `);
+(id,
+  name,
+  slug,
+  description,
+  is_active,
+  sort_order,
+  created_at,
+  updated_at`,
     )
     .eq("id", id)
     .single();
@@ -73,7 +67,6 @@ export const getCategoryById = async (id) => {
 
 export const createCategory = async ({
   name,
-  slug,
   description = null,
   isActive = true,
   sortOrder = 0,
@@ -82,7 +75,6 @@ export const createCategory = async ({
     .from("categories")
     .insert({
       name: name.trim(),
-      slug: slug.trim(),
       description: description?.trim() || null,
       is_active: isActive,
       sort_order: sortOrder,
@@ -99,7 +91,7 @@ export const createCategory = async ({
 
 export const updateCategory = async (
   id,
-  { name, slug, description = null, isActive = true, sortOrder = 0 },
+  { name, description = null, isActive = true, sortOrder = 0 },
 ) => {
   if (!id) {
     throw new Error("CATEGORY_ID_REQUIRED");
@@ -109,7 +101,6 @@ export const updateCategory = async (
     .from("categories")
     .update({
       name: name.trim(),
-      slug: slug.trim(),
       description: description?.trim() || null,
       is_active: isActive,
       sort_order: sortOrder,

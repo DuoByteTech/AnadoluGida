@@ -310,12 +310,11 @@ const ProductForm = ({ isEditMode, initialData }) => {
       if (isEditMode) {
         product = await updateProduct(initialData.id, payload);
       } else {
-
-      /*
-       * =================================
-       * CREATE MODE
-       * =================================
-       */
+        /*
+         * =================================
+         * CREATE MODE
+         * =================================
+         */
         product = await createProduct(payload);
       }
 
