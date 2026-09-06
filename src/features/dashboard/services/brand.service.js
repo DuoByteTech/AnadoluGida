@@ -7,7 +7,6 @@ const mapBrand = (brand) => ({
   description: brand.description ?? "",
   websiteUrl: brand.website_url ?? "",
   isActive: brand.is_active,
-  sortOrder: brand.sort_order,
   createdAt: brand.created_at,
   updatedAt: brand.updated_at,
   productCount: brand.products?.[0]?.count ?? 0,
@@ -24,15 +23,11 @@ export const getBrands = async () => {
       description,
       website_url,
       is_active,
-      sort_order,
       created_at,
       updated_at,
       products(count)
     `,
     )
-    .order("sort_order", {
-      ascending: true,
-    })
     .order("name", {
       ascending: true,
     });
@@ -59,7 +54,6 @@ export const getBrandById = async (id) => {
       description,
       website_url,
       is_active,
-      sort_order,
       created_at,
       updated_at
     `,
@@ -76,21 +70,17 @@ export const getBrandById = async (id) => {
 
 export const createBrand = async ({
   name,
-  slug,
   description = null,
   websiteUrl = null,
   isActive = true,
-  sortOrder = 0,
 }) => {
   const { data, error } = await supabase
     .from("brands")
     .insert({
       name: name.trim(),
-      slug: slug.trim(),
       description: description?.trim() || null,
       website_url: websiteUrl?.trim() || null,
       is_active: isActive,
-      sort_order: sortOrder,
     })
     .select()
     .single();
@@ -104,14 +94,7 @@ export const createBrand = async ({
 
 export const updateBrand = async (
   id,
-  {
-    name,
-    slug,
-    description = null,
-    websiteUrl = null,
-    isActive = true,
-    sortOrder = 0,
-  },
+  { name, description = null, websiteUrl = null, isActive = true },
 ) => {
   if (!id) {
     throw new Error("BRAND_ID_REQUIRED");
@@ -121,11 +104,9 @@ export const updateBrand = async (
     .from("brands")
     .update({
       name: name.trim(),
-      slug: slug.trim(),
       description: description?.trim() || null,
       website_url: websiteUrl?.trim() || null,
       is_active: isActive,
-      sort_order: sortOrder,
     })
     .eq("id", id)
     .select()

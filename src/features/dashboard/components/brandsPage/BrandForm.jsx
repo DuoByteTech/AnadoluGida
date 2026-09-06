@@ -5,20 +5,6 @@ import PageHeader from "../PageHeader";
 
 import { createBrand, updateBrand } from "../../services/brand.service";
 
-const createSlug = (value) => {
-  return value
-    .trim()
-    .toLocaleLowerCase("tr-TR")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-};
-
 const BrandForm = ({ isEditMode, initialData }) => {
   const navigate = useNavigate();
 
@@ -26,20 +12,16 @@ const BrandForm = ({ isEditMode, initialData }) => {
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
-    slug: initialData?.slug || "",
     description: initialData?.description || "",
     websiteUrl: initialData?.websiteUrl || "",
-    sortOrder: initialData?.sortOrder ?? 0,
     isActive: initialData?.isActive ?? true,
   });
 
   useEffect(() => {
     setFormData({
       name: initialData?.name || "",
-      slug: initialData?.slug || "",
       description: initialData?.description || "",
       websiteUrl: initialData?.websiteUrl || "",
-      sortOrder: initialData?.sortOrder ?? 0,
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -50,21 +32,6 @@ const BrandForm = ({ isEditMode, initialData }) => {
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleNameChange = (e) => {
-    const value = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-
-      name: value,
-
-      slug:
-        !isEditMode || prev.slug === createSlug(prev.name)
-          ? createSlug(value)
-          : prev.slug,
     }));
   };
 
@@ -79,23 +46,6 @@ const BrandForm = ({ isEditMode, initialData }) => {
 
     if (!name) {
       alert("Marka adı boş bırakılamaz.");
-
-      return;
-    }
-
-    const slug = formData.slug.trim() || createSlug(name);
-
-    if (!slug) {
-      alert("Geçerli bir slug oluşturulamadı.");
-
-      return;
-    }
-
-    const sortOrder = Number(formData.sortOrder);
-
-    if (Number.isNaN(sortOrder) || sortOrder < 0) {
-      alert("Sıralama değeri 0 veya daha büyük olmalıdır.");
-
       return;
     }
 
@@ -104,15 +54,9 @@ const BrandForm = ({ isEditMode, initialData }) => {
 
       const payload = {
         name,
-        slug,
-
         description: formData.description,
-
         websiteUrl: formData.websiteUrl,
-
         isActive: formData.isActive,
-
-        sortOrder,
       };
 
       if (isEditMode) {
@@ -126,8 +70,7 @@ const BrandForm = ({ isEditMode, initialData }) => {
       console.error("Marka kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu marka adı veya slug zaten kullanılıyor.");
-
+        alert("Bu marka zaten kullanılıyor.");
         return;
       }
 
@@ -161,20 +104,6 @@ const BrandForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="Örn: Sera"
               value={formData.name}
-              onChange={handleNameChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Slug</legend>
-
-            <input
-              type="text"
-              name="slug"
-              className="input input-bordered w-full"
-              placeholder="sera"
-              value={formData.slug}
               onChange={handleChange}
               disabled={isSubmitting}
             />
@@ -202,21 +131,6 @@ const BrandForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="https://example.com"
               value={formData.websiteUrl}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Sıralama</legend>
-
-            <input
-              type="number"
-              min="0"
-              step="1"
-              name="sortOrder"
-              className="input input-bordered w-full"
-              value={formData.sortOrder}
               onChange={handleChange}
               disabled={isSubmitting}
             />

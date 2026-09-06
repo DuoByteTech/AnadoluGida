@@ -50,23 +50,16 @@ const mapProduct = (product) => {
     oldPrice: product.old_price !== null ? Number(product.old_price) : null,
 
     badge: product.badge ?? "",
-
     color: product.color ?? "",
-
     rating: Number(product.rating ?? 0),
 
     isDiscounted: product.is_discounted,
-
     isActive: product.is_active,
 
-    sortOrder: product.sort_order,
-
     createdAt: product.created_at,
-
     updatedAt: product.updated_at,
 
     images,
-
     image: images[0]?.url ?? null,
   };
 };
@@ -86,7 +79,6 @@ const PRODUCT_SELECT = `
   rating,
   is_discounted,
   is_active,
-  sort_order,
   created_at,
   updated_at,
 
@@ -122,11 +114,8 @@ export const getProducts = async () => {
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_SELECT)
-    .order("sort_order", {
+    .order("name", {
       ascending: true,
-    })
-    .order("created_at", {
-      ascending: false,
     });
 
   if (error) {
@@ -159,7 +148,6 @@ export const createProduct = async ({
   subcategoryId = null,
   brandId = null,
   name,
-  slug,
   description = null,
   price,
   oldPrice = null,
@@ -168,7 +156,6 @@ export const createProduct = async ({
   rating = 0,
   isDiscounted = false,
   isActive = true,
-  sortOrder = 0,
 }) => {
   const { data, error } = await supabase
     .from("products")
@@ -180,8 +167,6 @@ export const createProduct = async ({
       brand_id: brandId || null,
 
       name: name.trim(),
-
-      slug: slug.trim(),
 
       description: description?.trim() || null,
 
@@ -198,8 +183,6 @@ export const createProduct = async ({
       is_discounted: isDiscounted,
 
       is_active: isActive,
-
-      sort_order: Number(sortOrder || 0),
     })
     .select(PRODUCT_SELECT)
     .single();
@@ -218,7 +201,6 @@ export const updateProduct = async (
     subcategoryId = null,
     brandId = null,
     name,
-    slug,
     description = null,
     price,
     oldPrice = null,
@@ -227,7 +209,6 @@ export const updateProduct = async (
     rating = 0,
     isDiscounted = false,
     isActive = true,
-    sortOrder = 0,
   },
 ) => {
   if (!id) {
@@ -245,8 +226,6 @@ export const updateProduct = async (
 
       name: name.trim(),
 
-      slug: slug.trim(),
-
       description: description?.trim() || null,
 
       price: Number(price),
@@ -262,8 +241,6 @@ export const updateProduct = async (
       is_discounted: isDiscounted,
 
       is_active: isActive,
-
-      sort_order: Number(sortOrder || 0),
     })
     .eq("id", id)
     .select(PRODUCT_SELECT)
@@ -289,13 +266,12 @@ export const createProductImages = async ({ productId, images }) => {
 
   const rows = imageList.map((image, index) => ({
     product_id: productId,
-
     object_key: image.key,
-
     content_type: image.contentType || null,
-
     file_size: image.size ?? null,
 
+    // Bu kalıyor:
+    // ürün görsellerinin kendi sırası.
     sort_order: index,
 
     is_primary: index === 0,

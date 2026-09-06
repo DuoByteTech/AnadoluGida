@@ -1,35 +1,28 @@
 import { supabase } from "@/lib/supabase/client";
 
-const mapSubCategory = (item) => ({
-  id: item.id,
-  categoryId: item.category_id,
-  categoryName: item.categories?.name ?? "",
-  name: item.name,
-  slug: item.slug,
-  description: item.description ?? "",
-  isActive: item.is_active,
-  createdAt: item.created_at,
-  updatedAt: item.updated_at,
-  productCount: item.products?.[0]?.count ?? 0,
+const mapCategory = (category) => ({
+  id: category.id,
+  name: category.name,
+  slug: category.slug,
+  description: category.description ?? "",
+  isActive: category.is_active,
+  createdAt: category.created_at,
+  updatedAt: category.updated_at,
+  productCount: category.products?.[0]?.count ?? 0,
 });
 
-export const getSubCategories = async () => {
+export const getCategories = async () => {
   const { data, error } = await supabase
-    .from("subcategories")
+    .from("categories")
     .select(
       `
       id,
-      category_id,
       name,
       slug,
       description,
       is_active,
       created_at,
       updated_at,
-      categories (
-        id,
-        name
-      ),
       products(count)
     `,
     )
@@ -41,30 +34,25 @@ export const getSubCategories = async () => {
     throw error;
   }
 
-  return (data || []).map(mapSubCategory);
+  return (data || []).map(mapCategory);
 };
 
-export const getSubCategoryById = async (id) => {
+export const getCategoryById = async (id) => {
   if (!id) {
-    throw new Error("SUBCATEGORY_ID_REQUIRED");
+    throw new Error("CATEGORY_ID_REQUIRED");
   }
 
   const { data, error } = await supabase
-    .from("subcategories")
+    .from("categories")
     .select(
       `
       id,
-      category_id,
       name,
       slug,
       description,
       is_active,
       created_at,
-      updated_at,
-      categories (
-        id,
-        name
-      )
+      updated_at
     `,
     )
     .eq("id", id)
@@ -74,96 +62,63 @@ export const getSubCategoryById = async (id) => {
     throw error;
   }
 
-  return mapSubCategory(data);
+  return mapCategory(data);
 };
 
-export const createSubCategory = async ({
-  categoryId,
+export const createCategory = async ({
   name,
   description = null,
   isActive = true,
 }) => {
   const { data, error } = await supabase
-    .from("subcategories")
+    .from("categories")
     .insert({
-      category_id: categoryId,
       name: name.trim(),
       description: description?.trim() || null,
       is_active: isActive,
     })
-    .select(
-      `
-      id,
-      category_id,
-      name,
-      slug,
-      description,
-      is_active,
-      created_at,
-      updated_at,
-      categories (
-        id,
-        name
-      )
-    `,
-    )
+    .select()
     .single();
 
   if (error) {
     throw error;
   }
 
-  return mapSubCategory(data);
+  return mapCategory(data);
 };
 
-export const updateSubCategory = async (
+export const updateCategory = async (
   id,
-  { categoryId, name, description = null, isActive = true },
+  { name, description = null, isActive = true },
 ) => {
   if (!id) {
-    throw new Error("SUBCATEGORY_ID_REQUIRED");
+    throw new Error("CATEGORY_ID_REQUIRED");
   }
 
   const { data, error } = await supabase
-    .from("subcategories")
+    .from("categories")
     .update({
-      category_id: categoryId,
       name: name.trim(),
       description: description?.trim() || null,
       is_active: isActive,
     })
     .eq("id", id)
-    .select(
-      `
-      id,
-      category_id,
-      name,
-      slug,
-      description,
-      is_active,
-      created_at,
-      updated_at,
-      categories (
-        id,
-        name
-      )
-    `,
-    )
+    .select()
     .single();
 
   if (error) {
     throw error;
   }
 
-  return mapSubCategory(data);
+  return mapCategory(data);
 };
 
-export const deleteSubCategory = async (id) => {
+export const deleteCategory = async (id) => {
   if (!id) {
-    throw new Error("SUBCATEGORY_ID_REQUIRED");
+    throw new Error("CATEGORY_ID_REQUIRED");
   }
 
-  const { error } = await supabase.from("subcategories").delete().eq("id", id);
+  const { error } = await supabase.from("categories").delete().eq("id", id);
 
   if (error) {
     throw error;

@@ -10,40 +10,17 @@ import {
   updateSubCategory,
 } from "../../services/subCategory.service";
 
-const createSlug = (value) => {
-  return value
-    .trim()
-    .toLocaleLowerCase("tr-TR")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-};
-
 const SubCategoryForm = ({ isEditMode, initialData }) => {
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
-
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     categoryId: initialData?.categoryId || "",
-
     name: initialData?.name || "",
-
-    slug: initialData?.slug || "",
-
     description: initialData?.description || "",
-
-    sortOrder: initialData?.sortOrder ?? 0,
-
     isActive: initialData?.isActive ?? true,
   });
 
@@ -70,15 +47,8 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
   useEffect(() => {
     setFormData({
       categoryId: initialData?.categoryId || "",
-
       name: initialData?.name || "",
-
-      slug: initialData?.slug || "",
-
       description: initialData?.description || "",
-
-      sortOrder: initialData?.sortOrder ?? 0,
-
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -88,23 +58,7 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
 
     setFormData((prev) => ({
       ...prev,
-
       [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleNameChange = (e) => {
-    const value = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-
-      name: value,
-
-      slug:
-        !isEditMode || prev.slug === createSlug(prev.name)
-          ? createSlug(value)
-          : prev.slug,
     }));
   };
 
@@ -117,7 +71,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
 
     if (!formData.categoryId) {
       alert("Lütfen bir kategori seçin.");
-
       return;
     }
 
@@ -125,23 +78,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
 
     if (!name) {
       alert("Alt kategori adı boş bırakılamaz.");
-
-      return;
-    }
-
-    const slug = formData.slug.trim() || createSlug(name);
-
-    if (!slug) {
-      alert("Geçerli bir slug oluşturulamadı.");
-
-      return;
-    }
-
-    const sortOrder = Number(formData.sortOrder);
-
-    if (Number.isNaN(sortOrder) || sortOrder < 0) {
-      alert("Sıralama değeri 0 veya daha büyük olmalıdır.");
-
       return;
     }
 
@@ -150,16 +86,9 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
 
       const payload = {
         categoryId: formData.categoryId,
-
         name,
-
-        slug,
-
         description: formData.description,
-
         isActive: formData.isActive,
-
-        sortOrder,
       };
 
       if (isEditMode) {
@@ -173,8 +102,7 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
       console.error("Alt kategori kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu alt kategori adı veya slug zaten kullanılıyor.");
-
+        alert("Bu alt kategori zaten kullanılıyor.");
         return;
       }
 
@@ -232,20 +160,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
               className="input input-bordered w-full"
               placeholder="Örn: Elma"
               value={formData.name}
-              onChange={handleNameChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Slug</legend>
-
-            <input
-              type="text"
-              name="slug"
-              className="input input-bordered w-full"
-              placeholder="elma"
-              value={formData.slug}
               onChange={handleChange}
               disabled={isSubmitting}
             />
@@ -259,21 +173,6 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
               className="textarea textarea-bordered min-h-28 w-full"
               placeholder="Alt kategori açıklaması..."
               value={formData.description}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </fieldset>
-
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Sıralama</legend>
-
-            <input
-              type="number"
-              min="0"
-              step="1"
-              name="sortOrder"
-              className="input input-bordered w-full"
-              value={formData.sortOrder}
               onChange={handleChange}
               disabled={isSubmitting}
             />

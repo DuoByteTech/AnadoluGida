@@ -5,9 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PageHeader from "../PageHeader";
 
 import { getCategories } from "../../services/category.service";
-
 import { getSubCategories } from "../../services/subCategory.service";
-
 import { getBrands } from "../../services/brand.service";
 
 import {
@@ -18,36 +16,18 @@ import {
 
 import { uploadProductImages } from "../../services/productImage.service";
 
-const createSlug = (value) => {
-  return value
-    .trim()
-    .toLocaleLowerCase("tr-TR")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-};
-
 const ProductForm = ({ isEditMode, initialData }) => {
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
-
   const [subcategories, setSubcategories] = useState([]);
-
   const [brands, setBrands] = useState([]);
 
   const [isLoadingOptions, setIsLoadingOptions] = useState(true);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
-    slug: "",
     categoryId: "",
     subcategoryId: "",
     brandId: "",
@@ -57,16 +37,11 @@ const ProductForm = ({ isEditMode, initialData }) => {
     badge: "",
     color: "",
     rating: "",
-    sortOrder: 0,
     images: [],
     isDiscounted: false,
     isActive: true,
   });
 
-  /*
-   * Kategori / alt kategori / marka
-   * seçeneklerini Supabase'den getir.
-   */
   useEffect(() => {
     const loadOptions = async () => {
       try {
@@ -93,15 +68,9 @@ const ProductForm = ({ isEditMode, initialData }) => {
     loadOptions();
   }, []);
 
-  /*
-   * Edit modunda mevcut ürünü
-   * forma yerleştir.
-   */
   useEffect(() => {
     setFormData({
       name: initialData?.name || "",
-
-      slug: initialData?.slug || "",
 
       categoryId: initialData?.categoryId || "",
 
@@ -121,8 +90,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       rating: initialData?.rating ?? "",
 
-      sortOrder: initialData?.sortOrder ?? 0,
-
       images: [],
 
       isDiscounted: initialData?.isDiscounted ?? false,
@@ -131,10 +98,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
     });
   }, [initialData]);
 
-  /*
-   * Seçilen kategoriye ait
-   * alt kategoriler.
-   */
   const filteredSubcategories = useMemo(() => {
     if (!formData.categoryId) {
       return [];
@@ -151,35 +114,15 @@ const ProductForm = ({ isEditMode, initialData }) => {
     setFormData((prev) => {
       const updated = {
         ...prev,
-
         [name]: type === "checkbox" ? checked : value,
       };
 
-      /*
-       * Ana kategori değişirse
-       * alt kategori sıfırlansın.
-       */
       if (name === "categoryId") {
         updated.subcategoryId = "";
       }
 
       return updated;
     });
-  };
-
-  const handleNameChange = (e) => {
-    const value = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-
-      name: value,
-
-      slug:
-        !isEditMode || prev.slug === createSlug(prev.name)
-          ? createSlug(value)
-          : prev.slug,
-    }));
   };
 
   const handleImageChange = (e) => {
@@ -194,31 +137,26 @@ const ProductForm = ({ isEditMode, initialData }) => {
   const validateForm = () => {
     if (!formData.name.trim()) {
       alert("Ürün adı boş bırakılamaz.");
-
       return false;
     }
 
     if (!formData.categoryId) {
       alert("Lütfen kategori seçin.");
-
       return false;
     }
 
     if (!formData.subcategoryId) {
       alert("Lütfen alt kategori seçin.");
-
       return false;
     }
 
     if (!formData.brandId) {
       alert("Lütfen marka seçin.");
-
       return false;
     }
 
     if (formData.price === "" || Number(formData.price) < 0) {
       alert("Geçerli bir fiyat girin.");
-
       return false;
     }
 
@@ -237,12 +175,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
       return false;
     }
 
-    if (Number(formData.sortOrder) < 0) {
-      alert("Sıralama 0 veya daha büyük olmalıdır.");
-
-      return false;
-    }
-
     return true;
   };
 
@@ -257,16 +189,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
       return;
     }
 
-    const name = formData.name.trim();
-
-    const slug = formData.slug.trim() || createSlug(name);
-
-    if (!slug) {
-      alert("Geçerli bir slug oluşturulamadı.");
-
-      return;
-    }
-
     const payload = {
       categoryId: formData.categoryId,
 
@@ -274,9 +196,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       brandId: formData.brandId,
 
-      name,
-
-      slug,
+      name: formData.name.trim(),
 
       description: formData.description,
 
@@ -290,8 +210,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       rating: formData.rating !== "" ? Number(formData.rating) : 0,
 
-      sortOrder: Number(formData.sortOrder || 0),
-
       isDiscounted: formData.isDiscounted,
 
       isActive: formData.isActive,
@@ -302,47 +220,20 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       let product;
 
-      /*
-       * =================================
-       * EDIT MODE
-       * =================================
-       */
       if (isEditMode) {
         product = await updateProduct(initialData.id, payload);
       } else {
-        /*
-         * =================================
-         * CREATE MODE
-         * =================================
-         */
         product = await createProduct(payload);
       }
 
-      /*
-       * =================================
-       * R2 IMAGE UPLOAD
-       * =================================
-       *
-       * Artık geçici UUID yok.
-       *
-       * Gerçek Supabase
-       * products.id kullanılıyor.
-       */
       if (formData.images.length > 0) {
         const uploadedImages = await uploadProductImages({
           files: formData.images,
-
           productId: product.id,
         });
 
-        /*
-         * R2 upload başarılı olduktan
-         * sonra object_key bilgilerini
-         * product_images tablosuna yaz.
-         */
         await createProductImages({
           productId: product.id,
-
           images: uploadedImages,
         });
       }
@@ -356,7 +247,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
       console.error("Ürün kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu ürün adı veya slug zaten kullanılıyor.");
+        alert("Bu ürün zaten kullanılıyor.");
 
         return;
       }
@@ -400,35 +291,19 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       <div className="rounded-xl bg-base-100 p-6 shadow-md">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Ürün Adı</legend>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Ürün Adı</legend>
 
-              <input
-                type="text"
-                name="name"
-                className="input input-bordered w-full"
-                placeholder="Örn: Portakal"
-                value={formData.name}
-                onChange={handleNameChange}
-                disabled={isSubmitting}
-              />
-            </fieldset>
-
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Slug</legend>
-
-              <input
-                type="text"
-                name="slug"
-                className="input input-bordered w-full"
-                placeholder="portakal"
-                value={formData.slug}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-            </fieldset>
-          </div>
+            <input
+              type="text"
+              name="name"
+              className="input input-bordered w-full"
+              placeholder="Örn: Portakal"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={isSubmitting}
+            />
+          </fieldset>
 
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Açıklama</legend>
@@ -556,7 +431,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
             </fieldset>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Badge</legend>
 
@@ -596,21 +471,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
                 <option value="secondary">Secondary</option>
               </select>
             </fieldset>
-
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Sıralama</legend>
-
-              <input
-                type="number"
-                min="0"
-                step="1"
-                name="sortOrder"
-                className="input input-bordered w-full"
-                value={formData.sortOrder}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-            </fieldset>
           </div>
 
           <fieldset className="fieldset">
@@ -624,57 +484,9 @@ const ProductForm = ({ isEditMode, initialData }) => {
               onChange={handleImageChange}
               disabled={isSubmitting}
             />
-
-            <p className="mt-2 text-xs text-base-content/60">
-              JPG, PNG, WEBP veya AVIF. Her görsel en fazla 10 MB.
-            </p>
           </fieldset>
 
-          {isEditMode && initialData?.images?.length > 0 && (
-            <div className="rounded-xl border border-base-200 p-4">
-              <p className="mb-3 font-medium">Mevcut Görseller</p>
-
-              <div className="flex flex-wrap gap-3">
-                {initialData.images.map((image) => (
-                  <div
-                    key={image.id}
-                    className="h-24 w-24 overflow-hidden rounded-xl border border-base-200 bg-base-200"
-                  >
-                    <img
-                      src={image.url}
-                      alt={initialData.name}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {formData.images.length > 0 && (
-            <div className="rounded-xl border border-base-200 p-4">
-              <p className="mb-3 font-medium">
-                Yeni Seçilen Görseller ({formData.images.length})
-              </p>
-
-              <div className="space-y-2">
-                {formData.images.map((file, index) => (
-                  <div
-                    key={`${file.name}-${file.size}-${index}`}
-                    className="flex justify-between rounded-lg bg-base-200/50 px-3 py-2"
-                  >
-                    <span className="truncate text-sm">{file.name}</span>
-
-                    <span className="text-xs opacity-60">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-3 md:flex-row md:gap-6">
+          <div className="flex flex-wrap gap-6">
             <label className="label cursor-pointer justify-start gap-3">
               <input
                 type="checkbox"
@@ -712,7 +524,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
             <button
               type="submit"
-              disabled={isSubmitting || isLoadingOptions}
+              disabled={isSubmitting}
               className="btn btn-primary rounded-xl"
             >
               {isSubmitting && (
