@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 
-import { supabase } from "../../../lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 
 import {
   getProfileByUserId,
@@ -116,6 +116,11 @@ const AuthProvider = ({ children }) => {
     if (!profileData.is_active) {
       await signOutService();
       throw new Error("ACCOUNT_DISABLED");
+    }
+
+    if (profileData.role !== "admin") {
+      await signOutService();
+      throw new Error("ADMIN_REQUIRED");
     }
 
     setSession(data.session);

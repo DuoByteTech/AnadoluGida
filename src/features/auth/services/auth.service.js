@@ -1,28 +1,4 @@
-import { supabase } from "../../../lib/supabase/client";
-
-export const signUpWithEmail = async ({
-  email,
-  password,
-  firstName,
-  lastName,
-}) => {
-  const { data, error } = await supabase.auth.signUp({
-    email: email.trim().toLowerCase(),
-    password,
-    options: {
-      data: {
-        first_name: firstName?.trim() || "",
-        last_name: lastName?.trim() || "",
-      },
-    },
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
-};
+import { supabase } from "@/lib/supabase/client";
 
 export const signInWithEmail = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -38,23 +14,29 @@ export const signInWithEmail = async (email, password) => {
 };
 
 export const getCurrentSession = async () => {
-  const { data, error } = await supabase.auth.getSession();
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
   if (error) {
     throw error;
   }
 
-  return data.session;
+  return session;
 };
 
 export const getCurrentUser = async () => {
-  const { data, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
   if (error) {
     throw error;
   }
 
-  return data.user;
+  return user;
 };
 
 export const getProfileByUserId = async (userId) => {
@@ -66,15 +48,16 @@ export const getProfileByUserId = async (userId) => {
     .from("profiles")
     .select(
       `
-        id,
-        email,
-        first_name,
-        last_name,
-        role,
-        is_active,
-        created_at,
-        updated_at
-      `,
+      id,
+      email,
+      full_name,
+      first_name,
+      last_name,
+      role,
+      is_active,
+      created_at,
+      updated_at
+    `,
     )
     .eq("id", userId)
     .single();

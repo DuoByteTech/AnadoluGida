@@ -1,8 +1,32 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import useAuth from "@/features/auth/hooks/useAuth";
+
 const LogoutPage = () => {
+  const navigate = useNavigate();
+
+  const { logout } = useAuth();
+
+  useEffect(() => {
+    const handleLogout = async () => {
+      try {
+        await logout();
+      } catch (error) {
+        console.error("Logout error:", error);
+      } finally {
+        navigate("/login", {
+          replace: true,
+        });
+      }
+    };
+
+    handleLogout();
+  }, [logout, navigate]);
+
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-bold">Çıkış</h1>
-      <p className="text-base-content/70">Çıkış işlemi burada yapılacak</p>
+    <div className="min-h-[300px] flex items-center justify-center">
+      <span className="loading loading-spinner loading-lg" />
     </div>
   );
 };
