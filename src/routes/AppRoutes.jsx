@@ -8,7 +8,7 @@ import ProductDetailPage from "../features/shop/ProductDetailPage";
 import AboutPage from "../features/about/AboutPage";
 import ContactPage from "../features/contact/ContactPage";
 
-import LoginPage from "@/features/auth/LoginPage";
+import LoginPage from "@/features/auth/pages/LoginPage";
 
 import DashboardLayout from "../features/dashboard/layout/DashboardLayout";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
@@ -35,7 +35,6 @@ const AppRoutes = () => {
       <ScrollToTop />
 
       <Routes>
-
         {/* Login */}
         <Route path="login" element={<LoginPage />} />
 
@@ -65,7 +64,10 @@ const AppRoutes = () => {
 
           <Route path="subcategories" element={<SubCategoriesPage />} />
           <Route path="subCategories/new" element={<SubCategoryFormPage />} />
-          <Route path="subCategories/edit/:id" element={<SubCategoryFormPage />} />
+          <Route
+            path="subCategories/edit/:id"
+            element={<SubCategoryFormPage />}
+          />
 
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/new" element={<ProductFormPage />} />
