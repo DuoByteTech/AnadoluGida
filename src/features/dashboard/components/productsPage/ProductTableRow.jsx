@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
@@ -20,6 +19,14 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
 
     closeModal();
   };
+
+  const discountPercentage = Number(product.discountPercentage) || 0;
+  const hasDiscount = discountPercentage > 0;
+  const basePrice = Number(product.price) || 0;
+
+  const finalPrice = hasDiscount
+    ? Number((basePrice * (1 - discountPercentage / 100)).toFixed(2))
+    : basePrice;
 
   return (
     <>
@@ -58,13 +65,7 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
 
         <td>
           <div className="flex flex-col">
-            <span className="font-semibold">€{product.price.toFixed(2)}</span>
-
-            {product.oldPrice !== null && (
-              <span className="text-xs text-base-content/50 line-through">
-                €{product.oldPrice.toFixed(2)}
-              </span>
-            )}
+            <span className="font-semibold">€{finalPrice.toFixed(2)}</span>
           </div>
         </td>
 
@@ -78,9 +79,9 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
               <span className="badge badge-ghost badge-sm">Pasif</span>
             )}
 
-            {product.isDiscounted && (
+            {hasDiscount && (
               <span className="badge badge-error badge-sm text-white">
-                İndirimli
+                -{discountPercentage}%
               </span>
             )}
           </div>

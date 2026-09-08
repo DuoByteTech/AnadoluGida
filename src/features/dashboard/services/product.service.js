@@ -21,44 +21,30 @@ const mapProduct = (product) => {
       if (a.isPrimary && !b.isPrimary) {
         return -1;
       }
-
       if (!a.isPrimary && b.isPrimary) {
         return 1;
       }
-
       return a.sortOrder - b.sortOrder;
     });
 
   return {
     id: product.id,
-
     categoryId: product.category_id,
     category: product.categories?.name ?? "",
-
     subcategoryId: product.subcategory_id,
     subcategory: product.subcategories?.name ?? "",
-
     brandId: product.brand_id,
     brand: product.brands?.name ?? "",
-
     name: product.name,
     slug: product.slug,
-
     price: Number(product.price),
-
-    oldPrice: product.old_price !== null ? Number(product.old_price) : null,
-
+    discountPercentage: Number(product.discount_percentage ?? 0),
     badge: product.badge ?? "",
     color: product.color ?? "",
-
-    isDiscounted: product.is_discounted,
     isActive: product.is_active,
-
     createdAt: product.created_at,
     updatedAt: product.updated_at,
-
     images,
-
     image: images[0]?.url ?? null,
   };
 };
@@ -71,27 +57,22 @@ const PRODUCT_SELECT = `
   name,
   slug,
   price,
-  old_price,
-  is_discounted,
+  discount_percentage,
   is_active,
   created_at,
   updated_at,
-
   categories (
     id,
     name
   ),
-
   subcategories (
     id,
     name
   ),
-
   brands (
     id,
     name
   ),
-
   product_images (
     id,
     product_id,
@@ -112,11 +93,9 @@ export const getProducts = async () => {
     .order("name", {
       ascending: true,
     });
-
   if (error) {
     throw error;
   }
-
   return (data || []).map(mapProduct);
 };
 
@@ -130,7 +109,6 @@ export const getProductById = async (id) => {
     .select(PRODUCT_SELECT)
     .eq("id", id)
     .single();
-
   if (error) {
     throw error;
   }
@@ -144,27 +122,18 @@ export const createProduct = async ({
   brandId = null,
   name,
   price,
-  oldPrice = null,
-  isDiscounted = false,
+  discountPercentage = 0,
   isActive = true,
 }) => {
   const { data, error } = await supabase
     .from("products")
     .insert({
       category_id: categoryId,
-
       subcategory_id: subcategoryId || null,
-
       brand_id: brandId || null,
-
       name: name.trim(),
-
       price: Number(price),
-
-      old_price: oldPrice !== null && oldPrice !== "" ? Number(oldPrice) : null,
-
-      is_discounted: isDiscounted,
-
+      discount_percentage: Number(discountPercentage) || 0,
       is_active: isActive,
     })
     .select(PRODUCT_SELECT)
@@ -185,8 +154,7 @@ export const updateProduct = async (
     brandId = null,
     name,
     price,
-    oldPrice = null,
-    isDiscounted = false,
+    discountPercentage = 0,
     isActive = true,
   },
 ) => {
@@ -198,19 +166,11 @@ export const updateProduct = async (
     .from("products")
     .update({
       category_id: categoryId,
-
       subcategory_id: subcategoryId || null,
-
       brand_id: brandId || null,
-
       name: name.trim(),
-
       price: Number(price),
-
-      old_price: oldPrice !== null && oldPrice !== "" ? Number(oldPrice) : null,
-
-      is_discounted: isDiscounted,
-
+      discount_percentage: Number(discountPercentage) || 0,
       is_active: isActive,
     })
     .eq("id", id)
@@ -220,7 +180,6 @@ export const updateProduct = async (
   if (error) {
     throw error;
   }
-
   return mapProduct(data);
 };
 
@@ -228,9 +187,7 @@ export const createProductImages = async ({ productId, images }) => {
   if (!productId) {
     throw new Error("PRODUCT_ID_REQUIRED");
   }
-
   const imageList = Array.from(images || []);
-
   if (imageList.length === 0) {
     return [];
   }

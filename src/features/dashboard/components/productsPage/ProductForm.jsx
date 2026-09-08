@@ -31,9 +31,8 @@ const ProductForm = ({ isEditMode, initialData }) => {
     subcategoryId: "",
     brandId: "",
     price: "",
-    oldPrice: "",
+    discountPercentage: 0,
     images: [],
-    isDiscounted: false,
     isActive: true,
   });
 
@@ -70,9 +69,8 @@ const ProductForm = ({ isEditMode, initialData }) => {
       subcategoryId: initialData?.subcategoryId || "",
       brandId: initialData?.brandId || "",
       price: initialData?.price ?? "",
-      oldPrice: initialData?.oldPrice ?? "",
+      discountPercentage: initialData?.discountPercentage ?? 0,
       images: [],
-      isDiscounted: initialData?.isDiscounted ?? false,
       isActive: initialData?.isActive ?? true,
     });
   }, [initialData]);
@@ -139,9 +137,14 @@ const ProductForm = ({ isEditMode, initialData }) => {
       return false;
     }
 
-    if (formData.oldPrice !== "" && Number(formData.oldPrice) < 0) {
-      alert("Eski fiyat 0 veya daha büyük olmalıdır.");
+    const discountPercentage = Number(formData.discountPercentage);
 
+    if (
+      !Number.isFinite(discountPercentage) ||
+      discountPercentage < 0 ||
+      discountPercentage > 100
+    ) {
+      alert("İndirim oranı %0 ile %100 arasında olmalıdır.");
       return false;
     }
 
@@ -168,9 +171,8 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       price: Number(formData.price),
 
-      oldPrice: formData.oldPrice !== "" ? Number(formData.oldPrice) : null,
+      discountPercentage: Number(formData.discountPercentage) || 0,
 
-      isDiscounted: formData.isDiscounted,
       isActive: formData.isActive,
     };
 
@@ -325,7 +327,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
             </fieldset>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Fiyat</legend>
 
@@ -343,19 +345,26 @@ const ProductForm = ({ isEditMode, initialData }) => {
             </fieldset>
 
             <fieldset className="fieldset">
-              <legend className="fieldset-legend">Eski Fiyat</legend>
+              <legend className="fieldset-legend">İndirim Oranı</legend>
 
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                name="oldPrice"
-                className="input input-bordered w-full"
-                placeholder="3.19"
-                value={formData.oldPrice}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  name="discountPercentage"
+                  className="input input-bordered w-full pr-10"
+                  placeholder="20"
+                  value={formData.discountPercentage}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                />
+
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60">
+                  %
+                </span>
+              </div>
             </fieldset>
           </div>
 
@@ -373,18 +382,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
           </fieldset>
 
           <div className="flex flex-wrap gap-6">
-            <label className="label cursor-pointer justify-start gap-3">
-              <input
-                type="checkbox"
-                name="isDiscounted"
-                className="checkbox"
-                checked={formData.isDiscounted}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-              İndirimli
-            </label>
-
             <label className="label cursor-pointer justify-start gap-3">
               <input
                 type="checkbox"
