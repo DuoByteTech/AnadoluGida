@@ -36,16 +36,6 @@ const PromotionTable = ({ promotions = [], onDelete, deletingPromotionId }) => {
               <tr>
                 <th>Promosyon</th>
 
-                <th>İndirim</th>
-
-                <th>Başlangıç</th>
-
-                <th>Bitiş</th>
-
-                <th>Sıra</th>
-
-                <th>Durum</th>
-
                 <th className="text-center">İşlemler</th>
               </tr>
             </thead>
@@ -63,7 +53,7 @@ const PromotionTable = ({ promotions = [], onDelete, deletingPromotionId }) => {
               ) : (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={2}
                     className="py-10 text-center text-base-content/60"
                   >
                     Henüz promosyon bulunmuyor.

@@ -4,15 +4,7 @@ import Button from "@/components/ui/Button";
 import GradientOverlay from "@/components/ui/GradientOverlay";
 import OverlayCard from "@/components/ui/OverlayCard";
 
-const PromotionsCard = ({
-  image,
-  title,
-  description,
-  linkUrl,
-  discountPercentage = 0,
-}) => {
-  const targetUrl = linkUrl?.trim() || "/shop?discount=true";
-
+const PromotionsCard = ({ image, title, description }) => {
   return (
     <OverlayCard
       image={image}
@@ -26,14 +18,6 @@ const PromotionsCard = ({
 
       <div className="absolute inset-0 flex flex-col justify-center items-start text-white p-6 gap-6">
         <div>
-          {discountPercentage > 0 && (
-            <div className="mb-3">
-              <span className="badge badge-error border-0 text-white font-semibold">
-                %{discountPercentage} Rabatt
-              </span>
-            </div>
-          )}
-
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
             {title}
           </h2>
@@ -46,7 +30,7 @@ const PromotionsCard = ({
         </div>
 
         <div className="mt-3 sm:mt-4">
-          <Link to={targetUrl}>
+          <Link to="/angebote">
             <Button className="btn btn-sm sm:btn-md btn-neutral">
               Jetzt entdecken
             </Button>

@@ -14,8 +14,6 @@ const Promotions = ({ promotions = [] }) => {
             image={promotion.image}
             title={promotion.title}
             description={promotion.description}
-            linkUrl={promotion.linkUrl}
-            discountPercentage={promotion.discountPercentage}
           />
         ))}
       </div>

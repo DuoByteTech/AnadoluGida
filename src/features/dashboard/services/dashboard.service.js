@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+
 import { getProducts } from "./product.service";
 
 const getTableCount = async (table) => {
@@ -21,7 +22,7 @@ const getDiscountedProductCount = async () => {
       count: "exact",
       head: true,
     })
-    .eq("is_discounted", true);
+    .gt("discount_percentage", 0);
 
   if (error) {
     throw error;
@@ -50,9 +51,13 @@ export const getDashboardData = async () => {
   return {
     stats: {
       categories: categoryCount,
+
       subcategories: subcategoryCount,
+
       brands: brandCount,
+
       products: productCount,
+
       discountedProducts: discountedProductCount,
     },
 

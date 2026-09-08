@@ -14,42 +14,12 @@ import {
   uploadPromotionImage,
 } from "../../services/promotionImage.service";
 
-const toDateTimeLocalValue = (value) => {
-  if (!value) {
-    return "";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  const offset = date.getTimezoneOffset();
-
-  const localDate = new Date(date.getTime() - offset * 60 * 1000);
-
-  return localDate.toISOString().slice(0, 16);
-};
-
 const PromotionForm = ({ isEditMode = false, initialData = null }) => {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
 
   const [description, setDescription] = useState("");
-
-  const [linkUrl, setLinkUrl] = useState("");
-
-  const [discountPercentage, setDiscountPercentage] = useState(0);
-
-  const [startsAt, setStartsAt] = useState("");
-
-  const [endsAt, setEndsAt] = useState("");
-
-  const [sortOrder, setSortOrder] = useState(0);
-
-  const [isActive, setIsActive] = useState(true);
 
   const [imageObjectKey, setImageObjectKey] = useState(null);
 
@@ -71,18 +41,6 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
     setTitle(initialData.title ?? "");
 
     setDescription(initialData.description ?? "");
-
-    setLinkUrl(initialData.linkUrl ?? "");
-
-    setDiscountPercentage(initialData.discountPercentage ?? 0);
-
-    setStartsAt(toDateTimeLocalValue(initialData.startsAt));
-
-    setEndsAt(toDateTimeLocalValue(initialData.endsAt));
-
-    setSortOrder(initialData.sortOrder ?? 0);
-
-    setIsActive(initialData.isActive ?? true);
 
     setImageObjectKey(initialData.imageObjectKey ?? null);
 
@@ -126,28 +84,6 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
       return;
     }
 
-    const discount = Number(discountPercentage);
-
-    if (Number.isNaN(discount) || discount < 0 || discount > 100) {
-      setError("İndirim oranı 0 ile 100 arasında olmalıdır.");
-
-      return;
-    }
-
-    const order = Number(sortOrder);
-
-    if (Number.isNaN(order) || order < 0) {
-      setError("Sıralama değeri 0 veya daha büyük olmalıdır.");
-
-      return;
-    }
-
-    if (startsAt && endsAt && new Date(endsAt) <= new Date(startsAt)) {
-      setError("Bitiş tarihi başlangıç tarihinden sonra olmalıdır.");
-
-      return;
-    }
-
     try {
       setIsSubmitting(true);
 
@@ -157,25 +93,7 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
         title: title.trim(),
 
         description: description.trim(),
-
-        linkUrl: linkUrl.trim(),
-
-        discountPercentage: discount,
-
-        startsAt: startsAt ? new Date(startsAt).toISOString() : null,
-
-        endsAt: endsAt ? new Date(endsAt).toISOString() : null,
-
-        sortOrder: order,
-
-        isActive,
       };
-
-      /*
-       * =========================================
-       * EDIT
-       * =========================================
-       */
 
       if (isEditMode) {
         const promotionId = initialData.id;
@@ -184,13 +102,6 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
 
         let newImageObjectKey = oldImageObjectKey;
 
-        /*
-         * Yeni görsel seçilmişse önce R2'ye yükle.
-         *
-         * Eski görseli burada silmiyoruz.
-         * Önce DB'nin yeni görselle başarıyla
-         * güncellenmesini bekliyoruz.
-         */
         if (selectedImage) {
           const uploadResult = await uploadPromotionImage({
             promotionId,
@@ -201,19 +112,12 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
           newImageObjectKey = uploadResult.objectKey;
         }
 
-        /*
-         * DB update.
-         */
         await updatePromotion(promotionId, {
           ...basePayload,
 
           imageObjectKey: newImageObjectKey,
         });
 
-        /*
-         * DB başarıyla yeni görsele geçtiyse
-         * eski R2 dosyasını temizle.
-         */
         if (
           selectedImage &&
           oldImageObjectKey &&
@@ -226,42 +130,20 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
               objectKey: oldImageObjectKey,
             });
           } catch (deleteError) {
-            /*
-             * DB update başarılı olduğu için burada
-             * tüm kaydetme işlemini başarısız saymıyoruz.
-             *
-             * Sadece eski R2 dosyası orphan kalabilir.
-             */
             console.error("Eski promosyon görseli silinemedi:", deleteError);
           }
         }
       } else {
-        /*
-         * =========================================
-         * CREATE
-         * =========================================
-         */
-
-        /*
-         * Edge Function promotionId istediği için
-         * önce promosyon DB'de oluşturuluyor.
-         */
         const createdPromotion = await createPromotion({
           ...basePayload,
 
           imageObjectKey: null,
         });
 
-        /*
-         * Görsel seçilmemişse promosyon burada hazır.
-         */
         if (selectedImage) {
           let uploadedObjectKey = null;
 
           try {
-            /*
-             * R2 upload.
-             */
             const uploadResult = await uploadPromotionImage({
               promotionId: createdPromotion.id,
 
@@ -270,23 +152,12 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
 
             uploadedObjectKey = uploadResult.objectKey;
 
-            /*
-             * Upload tamamlandıktan sonra object key'i
-             * promotions tablosuna yaz.
-             */
             await updatePromotion(createdPromotion.id, {
               ...basePayload,
 
               imageObjectKey: uploadedObjectKey,
             });
           } catch (uploadError) {
-            /*
-             * R2 upload başarılı olmuş ancak DB update
-             * başarısız olmuş olabilir.
-             *
-             * Böyle bir durumda orphan dosya bırakmamak
-             * için yüklenen dosyayı temizlemeye çalış.
-             */
             if (uploadedObjectKey) {
               try {
                 await deletePromotionImage({
@@ -296,7 +167,7 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
                 });
               } catch (cleanupError) {
                 console.error(
-                  "Başarısız promosyon upload temizlenemedi:",
+                  "Başarısız promosyon görseli temizlenemedi:",
                   cleanupError,
                 );
               }
@@ -329,7 +200,7 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
             </h1>
 
             <p className="mt-1 text-sm text-base-content/70">
-              Ana sayfada gösterilecek kampanya bilgilerini yönetin.
+              Ana sayfada gösterilecek promosyon içeriğini yönetin.
             </p>
           </div>
         </div>
@@ -355,7 +226,7 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
                   className="input input-bordered w-full"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  placeholder="Örn. Yaz İndirimi"
+                  placeholder="Örn. Frisches Gemüse"
                   disabled={isSubmitting}
                   required
                 />
@@ -367,120 +238,13 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
                 </label>
 
                 <textarea
-                  className="textarea textarea-bordered min-h-32 w-full"
+                  className="textarea textarea-bordered min-h-40 w-full"
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Promosyon açıklaması..."
                   disabled={isSubmitting}
                 />
               </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">
-                    Yönlendirme Linki
-                  </span>
-                </label>
-
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={linkUrl}
-                  onChange={(event) => setLinkUrl(event.target.value)}
-                  placeholder="/angebote"
-                  disabled={isSubmitting}
-                />
-
-                <div className="label">
-                  <span className="label-text-alt text-base-content/60">
-                    Örn. /angebote veya /shop?discount=true
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">İndirim %</span>
-                  </label>
-
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    className="input input-bordered w-full"
-                    value={discountPercentage}
-                    onChange={(event) =>
-                      setDiscountPercentage(event.target.value)
-                    }
-                    disabled={isSubmitting}
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Sıralama</span>
-                  </label>
-
-                  <input
-                    type="number"
-                    min="0"
-                    className="input input-bordered w-full"
-                    value={sortOrder}
-                    onChange={(event) => setSortOrder(event.target.value)}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Başlangıç</span>
-                  </label>
-
-                  <input
-                    type="datetime-local"
-                    className="input input-bordered w-full"
-                    value={startsAt}
-                    onChange={(event) => setStartsAt(event.target.value)}
-                    disabled={isSubmitting}
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Bitiş</span>
-                  </label>
-
-                  <input
-                    type="datetime-local"
-                    className="input input-bordered w-full"
-                    value={endsAt}
-                    onChange={(event) => setEndsAt(event.target.value)}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              </div>
-
-              <label className="flex cursor-pointer items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="toggle toggle-success"
-                  checked={isActive}
-                  onChange={(event) => setIsActive(event.target.checked)}
-                  disabled={isSubmitting}
-                />
-
-                <div>
-                  <div className="font-medium">Promosyon Aktif</div>
-
-                  <div className="text-xs text-base-content/60">
-                    Pasif promosyonlar müşterilere gösterilmez.
-                  </div>
-                </div>
-              </label>
             </div>
 
             <div>
