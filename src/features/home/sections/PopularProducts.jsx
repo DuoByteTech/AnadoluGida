@@ -20,9 +20,7 @@ const PopularProducts = ({ products }) => {
       {/* Button */}
       <div className="flex justify-center mt-10 mb-20">
         <Link to="/shop">
-          <Button className="btn btn-error text-white btn-md px-8">
-            Alle Produkte ansehen
-          </Button>
+          <Button className="btn btn-md px-8">Alle Produkte ansehen</Button>
         </Link>
       </div>
     </>

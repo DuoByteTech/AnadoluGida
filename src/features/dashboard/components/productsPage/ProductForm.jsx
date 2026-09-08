@@ -32,9 +32,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
     brandId: "",
     price: "",
     oldPrice: "",
-    badge: "",
-    color: "",
-    rating: "",
     images: [],
     isDiscounted: false,
     isActive: true,
@@ -74,9 +71,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
       brandId: initialData?.brandId || "",
       price: initialData?.price ?? "",
       oldPrice: initialData?.oldPrice ?? "",
-      badge: initialData?.badge || "",
-      color: initialData?.color || "",
-      rating: initialData?.rating ?? "",
       images: [],
       isDiscounted: initialData?.isDiscounted ?? false,
       isActive: initialData?.isActive ?? true,
@@ -151,14 +145,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
       return false;
     }
 
-    if (
-      formData.rating !== "" &&
-      (Number(formData.rating) < 0 || Number(formData.rating) > 5)
-    ) {
-      alert("Puan 0 ile 5 arasında olmalıdır.");
-      return false;
-    }
-
     return true;
   };
 
@@ -183,12 +169,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
       price: Number(formData.price),
 
       oldPrice: formData.oldPrice !== "" ? Number(formData.oldPrice) : null,
-
-      badge: formData.badge,
-
-      color: formData.color,
-
-      rating: formData.rating !== "" ? Number(formData.rating) : 0,
 
       isDiscounted: formData.isDiscounted,
       isActive: formData.isActive,
@@ -376,65 +356,6 @@ const ProductForm = ({ isEditMode, initialData }) => {
                 onChange={handleChange}
                 disabled={isSubmitting}
               />
-            </fieldset>
-
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Puan</legend>
-
-              <input
-                type="number"
-                min="0"
-                max="5"
-                step="0.1"
-                name="rating"
-                className="input input-bordered w-full"
-                placeholder="4.7"
-                value={formData.rating}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-            </fieldset>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Badge</legend>
-
-              <input
-                type="text"
-                name="badge"
-                className="input input-bordered w-full"
-                placeholder="Örn: Frisch"
-                value={formData.badge}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-            </fieldset>
-
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">Renk</legend>
-
-              <select
-                name="color"
-                className="select select-bordered w-full"
-                value={formData.color}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              >
-                <option value="">Renk seçin</option>
-
-                <option value="success">Success</option>
-
-                <option value="warning">Warning</option>
-
-                <option value="error">Error</option>
-
-                <option value="info">Info</option>
-
-                <option value="primary">Primary</option>
-
-                <option value="secondary">Secondary</option>
-              </select>
             </fieldset>
           </div>
 

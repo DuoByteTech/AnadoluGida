@@ -50,7 +50,6 @@ const mapProduct = (product) => {
 
     badge: product.badge ?? "",
     color: product.color ?? "",
-    rating: Number(product.rating ?? 0),
 
     isDiscounted: product.is_discounted,
     isActive: product.is_active,
@@ -73,9 +72,6 @@ const PRODUCT_SELECT = `
   slug,
   price,
   old_price,
-  badge,
-  color,
-  rating,
   is_discounted,
   is_active,
   created_at,
@@ -149,9 +145,6 @@ export const createProduct = async ({
   name,
   price,
   oldPrice = null,
-  badge = null,
-  color = null,
-  rating = 0,
   isDiscounted = false,
   isActive = true,
 }) => {
@@ -169,12 +162,6 @@ export const createProduct = async ({
       price: Number(price),
 
       old_price: oldPrice !== null && oldPrice !== "" ? Number(oldPrice) : null,
-
-      badge: badge?.trim() || null,
-
-      color: color || null,
-
-      rating: Number(rating || 0),
 
       is_discounted: isDiscounted,
 
@@ -199,9 +186,6 @@ export const updateProduct = async (
     name,
     price,
     oldPrice = null,
-    badge = null,
-    color = null,
-    rating = 0,
     isDiscounted = false,
     isActive = true,
   },
@@ -224,12 +208,6 @@ export const updateProduct = async (
       price: Number(price),
 
       old_price: oldPrice !== null && oldPrice !== "" ? Number(oldPrice) : null,
-
-      badge: badge?.trim() || null,
-
-      color: color || null,
-
-      rating: Number(rating || 0),
 
       is_discounted: isDiscounted,
 

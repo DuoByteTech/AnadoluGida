@@ -7,7 +7,7 @@ import { CardTitle } from "@/components/ui/Typography";
 import { formatCategoryName } from "@/utils/formatters";
 
 const ProductCard = ({ product }) => {
-  const { image, category, name, price, rating, badge, color, oldPrice } = product;
+  const { image, category, name, price, badge, color, oldPrice } = product;
 
   const badgeColorClass = {
     success: "badge-success",
@@ -20,8 +20,6 @@ const ProductCard = ({ product }) => {
     neutral: "badge-neutral",
   };
 
-  const rounded = Math.round(product.rating * 2) / 2; // 0.5 adım
-
   const formattedPrice = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -32,9 +30,9 @@ const ProductCard = ({ product }) => {
 
   const formattedOldPrice = hasDiscount
     ? new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(oldPrice)
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(oldPrice)
     : null;
 
   // ✅ (opsiyonel) indirim yüzdesi: oldPrice varsa hesapla
@@ -75,26 +73,6 @@ const ProductCard = ({ product }) => {
           <CardTitle className="-mt-2 line-clamp-2 leading-snug cursor-pointer">
             <Link to={`/product/${product.slug}`}>{name}</Link>
           </CardTitle>
-
-          <div className="flex items-center gap-2">
-            <div className="rating rating-xs rating-half -ml-2 pointer-events-none">
-              <input type="radio" className="rating-hidden" readOnly />
-
-              {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((value) => (
-                <input
-                  key={value}
-                  type="radio"
-                  name={`rating-detail-${product.id}`}
-                  className={`mask mask-star ${value % 1 === 0 ? "mask-half-2" : "mask-half-1"
-                    } bg-error`}
-                  checked={rounded === value}
-                  readOnly
-                />
-              ))}
-            </div>
-
-            <span className="text-sm opacity-70">{rating.toFixed(1)}</span>
-          </div>
 
           {/* fiyat + buton */}
           <div className="flex justify-between items-center mt-1">

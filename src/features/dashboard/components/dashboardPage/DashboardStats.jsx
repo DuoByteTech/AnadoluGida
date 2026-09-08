@@ -9,6 +9,7 @@ import {
   CubeIcon,
   TagIcon,
 } from "@heroicons/react/24/outline";
+import LinkButton from "../../../../components/ui/LinkButton";
 
 const DashboardStats = ({ stats }) => {
   const items = [
@@ -67,9 +68,7 @@ const DashboardStats = ({ stats }) => {
                 </div>
               </div>
 
-              <Link to={item.path} className="btn btn-error w-full text-white">
-                {item.button}
-              </Link>
+              <LinkButton>{item.button}</LinkButton>
             </div>
           </Card>
         );
