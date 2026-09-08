@@ -1,8 +1,10 @@
 import ProductCard from "@/features/shop/components/ProductCard";
+
 import Pagination from "@/components/ui/Pagination";
+
 import usePagination from "@/hooks/usePagination";
 
-const ShopContent = ({ filteredProducts }) => {
+const ShopContent = ({ filteredProducts = [] }) => {
   const { currentPage, setCurrentPage, totalPages, paginatedItems } =
     usePagination({
       items: filteredProducts,
@@ -12,17 +14,19 @@ const ShopContent = ({ filteredProducts }) => {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 mb-10 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6">
+      <div className="mb-10 grid grid-cols-2 gap-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
         {paginatedItems.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </>
   );
 };

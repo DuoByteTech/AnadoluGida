@@ -1,43 +1,67 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 
-import BrandForm from "../components/brandsPage/BrandForm";
+import PromotionHeader from "../components/promotionsPage/PromotionHeader";
+import PromotionTable from "../components/promotionsPage/PromotionTable";
 
-import { getBrandById } from "../services/brand.service";
+import { deletePromotion, getPromotions } from "../services/promotion.service";
 
-const BrandFormPage = () => {
-  const { id } = useParams();
+const PromotionsPage = () => {
+  const [promotions, setPromotions] = useState([]);
 
-  const isEditMode = Boolean(id);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [initialData, setInitialData] = useState(null);
-  const [isLoading, setIsLoading] = useState(isEditMode);
   const [error, setError] = useState("");
 
+  const [deletingPromotionId, setDeletingPromotionId] = useState(null);
+
+  const loadPromotions = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const data = await getPromotions();
+
+      setPromotions(data);
+    } catch (err) {
+      console.error("Promosyonlar yüklenirken hata oluştu:", err);
+
+      setError("Promosyonlar yüklenirken bir hata oluştu.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (!isEditMode) {
+    loadPromotions();
+  }, []);
+
+  const handleDeletePromotion = async (id) => {
+    if (!id) {
       return;
     }
 
-    const loadBrand = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
+    if (deletingPromotionId) {
+      return;
+    }
 
-        const brand = await getBrandById(id);
+    try {
+      setDeletingPromotionId(id);
 
-        setInitialData(brand);
-      } catch (err) {
-        console.error("Marka yüklenirken hata oluştu:", err);
+      await deletePromotion(id);
 
-        setError("Marka bilgileri yüklenemedi.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      setPromotions((prev) => prev.filter((promotion) => promotion.id !== id));
 
-    loadBrand();
-  }, [id, isEditMode]);
+      return true;
+    } catch (err) {
+      console.error("Promosyon silinirken hata oluştu:", err);
+
+      alert("Promosyon silinemedi.");
+
+      return false;
+    } finally {
+      setDeletingPromotionId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -49,13 +73,31 @@ const BrandFormPage = () => {
 
   if (error) {
     return (
-      <div className="alert alert-error">
-        <span>{error}</span>
+      <div className="space-y-6">
+        <PromotionHeader />
+
+        <div className="alert alert-error">
+          <span>{error}</span>
+
+          <button type="button" className="btn btn-sm" onClick={loadPromotions}>
+            Tekrar Dene
+          </button>
+        </div>
       </div>
     );
   }
 
-  return <BrandForm isEditMode={isEditMode} initialData={initialData} />;
+  return (
+    <div className="space-y-6">
+      <PromotionHeader />
+
+      <PromotionTable
+        promotions={promotions}
+        onDelete={handleDeletePromotion}
+        deletingPromotionId={deletingPromotionId}
+      />
+    </div>
+  );
 };
 
-export default BrandFormPage;
+export default PromotionsPage;

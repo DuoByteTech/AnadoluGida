@@ -1,27 +1,53 @@
 import { Link } from "react-router-dom";
+
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
+const ProductTableRow = ({
+  product,
+  formatCategoryName,
+  onDelete,
+  isDeleting = false,
+}) => {
   const modalId = `delete_product_modal_${product.id}`;
 
   const openModal = () => {
+    if (isDeleting) {
+      return;
+    }
+
     document.getElementById(modalId)?.showModal();
   };
 
   const closeModal = () => {
+    if (isDeleting) {
+      return;
+    }
+
     document.getElementById(modalId)?.close();
   };
 
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(product.id);
+  const handleDelete = async () => {
+    if (isDeleting) {
+      return;
     }
 
-    closeModal();
+    if (!onDelete) {
+      return;
+    }
+
+    try {
+      await onDelete(product.id);
+
+      document.getElementById(modalId)?.close();
+    } catch (err) {
+      console.error("Ürün satırından silme işlemi başarısız:", err);
+    }
   };
 
   const discountPercentage = Number(product.discountPercentage) || 0;
+
   const hasDiscount = discountPercentage > 0;
+
   const basePrice = Number(product.price) || 0;
 
   const finalPrice = hasDiscount
@@ -30,7 +56,7 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
 
   return (
     <>
-      <tr className="hover">
+      <tr className={isDeleting ? "opacity-60" : "hover"}>
         <td>
           <div className="flex items-center gap-3">
             <div className="avatar">
@@ -42,7 +68,7 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
                     className="h-full w-full object-contain"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-base-content/40">
+                  <div className="flex h-full w-full items-center justify-center text-center text-xs text-base-content/40">
                     Görsel yok
                   </div>
                 )}
@@ -66,6 +92,12 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
         <td>
           <div className="flex flex-col">
             <span className="font-semibold">€{finalPrice.toFixed(2)}</span>
+
+            {hasDiscount && (
+              <span className="text-xs text-base-content/50 line-through">
+                €{basePrice.toFixed(2)}
+              </span>
+            )}
           </div>
         </td>
 
@@ -91,7 +123,9 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
           <div className="flex justify-center gap-2">
             <Link
               to={`/dashboard/products/edit/${product.id}`}
-              className="btn btn-sm btn-ghost rounded-xl"
+              className={`btn btn-sm btn-ghost rounded-xl ${
+                isDeleting ? "pointer-events-none opacity-50" : ""
+              }`}
             >
               <PencilSquareIcon className="h-4 w-4" />
               Düzenle
@@ -100,10 +134,16 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
             <button
               type="button"
               onClick={openModal}
+              disabled={isDeleting}
               className="btn btn-sm btn-error btn-outline rounded-xl hover:text-white"
             >
-              <TrashIcon className="h-4 w-4" />
-              Sil
+              {isDeleting ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                <TrashIcon className="h-4 w-4" />
+              )}
+
+              {isDeleting ? "Siliniyor..." : "Sil"}
             </button>
           </div>
         </td>
@@ -117,20 +157,41 @@ const ProductTableRow = ({ product, formatCategoryName, onDelete }) => {
             <b>{product.name}</b> ürününü silmek istiyor musunuz?
           </p>
 
+          {product.images?.length > 0 && (
+            <div className="mb-4 rounded-xl bg-warning/10 p-3 text-sm">
+              Bu ürüne ait <strong>{product.images.length}</strong> görsel de
+              kalıcı olarak silinecek.
+            </div>
+          )}
+
           <div className="modal-action">
-            <button type="button" className="btn" onClick={closeModal}>
+            <button
+              type="button"
+              className="btn"
+              onClick={closeModal}
+              disabled={isDeleting}
+            >
               İptal
             </button>
 
             <button
               type="button"
               onClick={handleDelete}
+              disabled={isDeleting}
               className="btn btn-error text-white"
             >
-              Sil
+              {isDeleting && (
+                <span className="loading loading-spinner loading-sm" />
+              )}
+
+              {isDeleting ? "Siliniyor..." : "Sil"}
             </button>
           </div>
         </div>
+
+        <form method="dialog" className="modal-backdrop">
+          <button disabled={isDeleting}>close</button>
+        </form>
       </dialog>
     </>
   );

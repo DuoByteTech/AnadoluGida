@@ -11,20 +11,39 @@ const badgeColorClass = {
   neutral: "badge-neutral",
 };
 
-const ProductGallery = ({ product, images, activeIndex, onChangeIndex }) => {
-  const safeIndex = Math.min(activeIndex, Math.max(0, images.length - 1));
-  const activeImage = images[safeIndex];
+const ProductGallery = ({
+  product,
+  images = [],
+  activeIndex = 0,
+  onChangeIndex,
+}) => {
+  const safeImages = Array.isArray(images) ? images.filter(Boolean) : [];
+
+  const hasImages = safeImages.length > 0;
+
+  const safeIndex = hasImages
+    ? Math.min(Math.max(activeIndex, 0), safeImages.length - 1)
+    : 0;
+
+  const activeImage = hasImages ? safeImages[safeIndex] : null;
+
+  const handleChangeIndex = (index) => {
+    if (!onChangeIndex) {
+      return;
+    }
+
+    onChangeIndex(index);
+  };
 
   return (
     <>
-      {/* Ana görsel */}
       <Card>
         <div className="card-body">
-          <figure className="relative">
+          <figure className="relative flex min-h-72 items-center justify-center overflow-hidden rounded-2xl bg-base-100 sm:min-h-80 md:min-h-96 lg:min-h-100">
             {product.badge && (
               <div
                 className={[
-                  "badge badge-sm text-white m-3 absolute top-0 left-0 z-10",
+                  "badge badge-sm absolute left-0 top-0 z-10 m-3 text-white",
                   badgeColorClass[product.color] ?? "badge-neutral",
                 ].join(" ")}
               >
@@ -32,44 +51,61 @@ const ProductGallery = ({ product, images, activeIndex, onChangeIndex }) => {
               </div>
             )}
 
-            <img
-              src={activeImage}
-              alt={product.name}
-              className="w-full object-contain cursor-zoom-in h-72 sm:h-80 md:h-96 lg:h-100"
-              loading="lazy"
-            />
+            {activeImage ? (
+              <img
+                src={activeImage}
+                alt={product.name}
+                className="h-72 w-full cursor-zoom-in object-contain sm:h-80 md:h-96 lg:h-100"
+              />
+            ) : (
+              <div className="flex h-72 w-full flex-col items-center justify-center gap-2 text-center text-base-content/40 sm:h-80 md:h-96 lg:h-100">
+                <span className="text-lg font-medium">Kein Produktbild</span>
+
+                <span className="text-sm">
+                  Für dieses Produkt ist noch kein Bild vorhanden.
+                </span>
+              </div>
+            )}
+
+            {safeImages.length > 1 && (
+              <div className="badge badge-neutral absolute bottom-3 right-3">
+                {safeIndex + 1} / {safeImages.length}
+              </div>
+            )}
           </figure>
         </div>
       </Card>
 
-      {/* Thumbnail strip */}
-      <div className="flex gap-3 overflow-x-auto pb-1 mt-4">
-        {images.map((src, i) => {
-          const isActive = i === safeIndex;
+      {safeImages.length > 1 && (
+        <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+          {safeImages.map((src, index) => {
+            const isActive = index === safeIndex;
 
-          return (
-            <button
-              key={`${src}-${i}`}
-              type="button"
-              onClick={() => onChangeIndex(i)}
-              className={[
-                "shrink-0 rounded-2xl p-2 border transition",
-                "text-base-content cursor-pointer hover:bg-error/10",
-                "border border-error/40",
-                isActive ? "bg-error/10" : "bg-base-100",
-              ].join(" ")}
-              aria-label={`Select image ${i + 1}`}
-            >
-              <img
-                src={src}
-                alt={`${product.name} ${i + 1}`}
-                className="h-16 w-16 rounded-xl object-cover"
-                loading="lazy"
-              />
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <button
+                key={`${src}-${index}`}
+                type="button"
+                onClick={() => handleChangeIndex(index)}
+                className={[
+                  "shrink-0 rounded-2xl border p-2 transition",
+                  "cursor-pointer text-base-content",
+                  isActive
+                    ? "border-error bg-error/10"
+                    : "border-base-300 bg-base-100 hover:border-error/40 hover:bg-error/5",
+                ].join(" ")}
+                aria-label={`Produktbild ${index + 1} anzeigen`}
+                aria-pressed={isActive}
+              >
+                <img
+                  src={src}
+                  alt={`${product.name} ${index + 1}`}
+                  className="h-16 w-16 rounded-xl object-cover"
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 };

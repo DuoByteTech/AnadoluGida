@@ -1,11 +1,20 @@
-const CategorySliderCard = ({ image, title }) => {
+import { Link } from "react-router-dom";
+
+const CategorySliderCard = ({ title, slug }) => {
+  const initial = title?.trim()?.charAt(0)?.toUpperCase() || "?";
+
   return (
-    <div className="card border w-20 sm:w-full">
-      <div className="card-body flex items-center justify-center text-center p-4">
-        <img src={image} alt={title} className="w-12 h-12" />
-        <span className="text-sm">{title}</span>
+    <Link to={`/shop/${slug}`} className="block">
+      <div className="card w-20 border border-base-200 bg-base-100 transition hover:border-error/30 hover:shadow-sm sm:w-full">
+        <div className="card-body flex items-center justify-center gap-2 p-4 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-error/10 text-lg font-bold text-error">
+            {initial}
+          </div>
+
+          <span className="line-clamp-1 text-sm">{title}</span>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

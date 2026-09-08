@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import ProductHeader from "../components/productsPage/ProductHeader";
 import ProductTable from "../components/productsPage/ProductTable";
 
-import { deleteProduct, getProducts } from "../services/product.service";
+import {
+  deleteProduct,
+  getProductById,
+  getProducts,
+} from "../services/product.service";
+
+import { deleteProductImagesFromR2 } from "../services/productImage.service";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -11,6 +17,8 @@ const ProductsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [error, setError] = useState("");
+
+  const [deletingProductId, setDeletingProductId] = useState(null);
 
   const loadProducts = async () => {
     try {
@@ -34,14 +42,64 @@ const ProductsPage = () => {
   }, []);
 
   const handleDeleteProduct = async (id) => {
+    if (!id) {
+      return;
+    }
+
+    if (deletingProductId) {
+      return;
+    }
+
     try {
+      setDeletingProductId(id);
+
+      /*
+       * Ürünü silmeden önce görsellerini alıyoruz.
+       *
+       * Çünkü product silindikten sonra
+       * product_images kayıtları cascade ile
+       * silinirse object_key bilgilerini artık
+       * okuyamayız.
+       */
+      const product = await getProductById(id);
+
+      const objectKeys = (product.images || [])
+        .map((image) => image.objectKey)
+        .filter(Boolean);
+
+      /*
+       * Önce fiziksel R2 dosyalarını siliyoruz.
+       */
+      if (objectKeys.length > 0) {
+        await deleteProductImagesFromR2({
+          productId: id,
+          objectKeys,
+        });
+      }
+
+      /*
+       * Ardından ürünü database'den siliyoruz.
+       *
+       * product_images FK cascade ise görsel
+       * kayıtları da burada temizlenecek.
+       */
       await deleteProduct(id);
 
       setProducts((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
       console.error("Ürün silinirken hata oluştu:", err);
 
-      alert("Ürün silinemedi.");
+      if (err?.message === "R2_DELETE_FAILED") {
+        alert(
+          "Ürün görselleri R2 üzerinden silinemedi. Ürün silme işlemi durduruldu.",
+        );
+
+        return;
+      }
+
+      alert("Ürün silinirken bir hata oluştu.");
+    } finally {
+      setDeletingProductId(null);
     }
   };
 
@@ -73,7 +131,11 @@ const ProductsPage = () => {
     <div className="space-y-6">
       <ProductHeader />
 
-      <ProductTable products={products} onDelete={handleDeleteProduct} />
+      <ProductTable
+        products={products}
+        onDelete={handleDeleteProduct}
+        deletingProductId={deletingProductId}
+      />
     </div>
   );
 };
