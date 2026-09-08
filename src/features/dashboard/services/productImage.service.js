@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+
 import { getR2PublicUrl } from "@/lib/storage/r2/r2.utils";
 
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -25,6 +26,10 @@ const validateImageFile = (file) => {
 };
 
 export const createProductImageUpload = async ({ file, productId }) => {
+  if (!productId) {
+    throw new Error("PRODUCT_ID_REQUIRED");
+  }
+
   validateImageFile(file);
 
   const { data, error } = await supabase.functions.invoke(
@@ -32,6 +37,7 @@ export const createProductImageUpload = async ({ file, productId }) => {
     {
       body: {
         productId,
+
         contentType: file.type,
       },
     },
@@ -49,6 +55,8 @@ export const createProductImageUpload = async ({ file, productId }) => {
 };
 
 export const uploadProductImage = async ({ file, productId }) => {
+  validateImageFile(file);
+
   const upload = await createProductImageUpload({
     file,
     productId,
@@ -70,18 +78,36 @@ export const uploadProductImage = async ({ file, productId }) => {
 
   return {
     key: upload.key,
+
     url: getR2PublicUrl(upload.key),
+
     contentType: file.type,
+
     size: file.size,
   };
 };
 
 export const uploadProductImages = async ({ files, productId }) => {
+  if (!productId) {
+    throw new Error("PRODUCT_ID_REQUIRED");
+  }
+
   const imageFiles = Array.from(files || []);
 
   if (imageFiles.length === 0) {
     return [];
   }
+
+  /*
+   * Tüm dosyaları upload
+   * başlamadan önce doğrula.
+   *
+   * Böylece örneğin 4 görselden
+   * üçüncüsü geçersizse ilk iki
+   * görsel gereksiz yere R2'ye
+   * yüklenmez.
+   */
+  imageFiles.forEach(validateImageFile);
 
   return Promise.all(
     imageFiles.map((file) =>
@@ -91,4 +117,37 @@ export const uploadProductImages = async ({ files, productId }) => {
       }),
     ),
   );
+};
+
+export const deleteProductImagesFromR2 = async ({ productId, objectKeys }) => {
+  if (!productId) {
+    throw new Error("PRODUCT_ID_REQUIRED");
+  }
+
+  const keys = Array.from(objectKeys || []).filter(Boolean);
+
+  if (keys.length === 0) {
+    return true;
+  }
+
+  const { data, error } = await supabase.functions.invoke(
+    "delete-product-images",
+    {
+      body: {
+        productId,
+
+        objectKeys: keys,
+      },
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  if (data?.success !== true) {
+    throw new Error(data?.error || "R2_DELETE_FAILED");
+  }
+
+  return true;
 };
