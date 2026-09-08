@@ -220,7 +220,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
       discountPercentage: Number(formData.discountPercentage) || 0,
 
-      isActive: formData.isActive,
+      isActive: isEditMode ? formData.isActive : true,
     };
 
     try {
@@ -531,19 +531,21 @@ const ProductForm = ({ isEditMode, initialData }) => {
             )}
           </fieldset>
 
-          <div className="flex flex-wrap gap-6">
-            <label className="label cursor-pointer justify-start gap-3">
-              <input
-                type="checkbox"
-                name="isActive"
-                className="checkbox"
-                checked={formData.isActive}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-              Aktif
-            </label>
-          </div>
+          {isEditMode && (
+            <div className="flex flex-wrap gap-6">
+              <label className="label cursor-pointer justify-start gap-3">
+                <input
+                  type="checkbox"
+                  name="isActive"
+                  className="checkbox"
+                  checked={formData.isActive}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                />
+                Aktif
+              </label>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4">
             <Link

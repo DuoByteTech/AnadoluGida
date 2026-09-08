@@ -68,7 +68,7 @@ const DashboardStats = ({ stats }) => {
                 </div>
               </div>
 
-              <LinkButton>{item.button}</LinkButton>
+              <LinkButton to={item.path}>{item.button}</LinkButton>
             </div>
           </Card>
         );

@@ -85,7 +85,7 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
       const payload = {
         categoryId: formData.categoryId,
         name,
-        isActive: formData.isActive,
+        isActive: isEditMode ? formData.isActive : true,
       };
 
       if (isEditMode) {
@@ -162,17 +162,19 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
             />
           </fieldset>
 
-          <label className="label cursor-pointer justify-start gap-3">
-            <input
-              type="checkbox"
-              name="isActive"
-              className="checkbox"
-              checked={formData.isActive}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            Aktif
-          </label>
+          {isEditMode && (
+            <label className="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                name="isActive"
+                className="checkbox"
+                checked={formData.isActive}
+                onChange={handleChange}
+                disabled={isSubmitting}
+              />
+              Aktif
+            </label>
+          )}
 
           <div className="flex justify-end gap-3 pt-4">
             <Link

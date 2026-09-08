@@ -67,7 +67,7 @@ const ProductCard = ({ product }) => {
       )}
 
       {hasDiscount && !badge && (
-        <div className="badge badge-error badge-sm absolute left-3 top-3 z-10 text-white">
+        <div className="badge bg-brand-red-700 badge-sm absolute left-3 top-3 z-10 text-white">
           -{discount}%
         </div>
       )}
@@ -110,7 +110,7 @@ const ProductCard = ({ product }) => {
               </span>
 
               {hasDiscount && (
-                <span className="badge badge-error badge-xs text-white">
+                <span className="badge bg-brand-red-700 badge-xs text-white">
                   -{discount}%
                 </span>
               )}
@@ -126,7 +126,7 @@ const ProductCard = ({ product }) => {
           </div>
 
           <button
-            className="btn btn-circle btn-error btn-sm shrink-0 shadow-sm transition-all duration-300 hover:shadow-md"
+            className="btn btn-circle bg-brand-red-700 btn-sm shrink-0 shadow-sm transition-all duration-300 hover:shadow-md"
             aria-label={`${name} zum Warenkorb hinzufügen`}
             type="button"
           >
