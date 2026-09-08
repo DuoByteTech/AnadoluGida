@@ -84,3 +84,33 @@ export const uploadPromotionImage = async ({ promotionId, file }) => {
     fileSize: file.size,
   };
 };
+
+export const deletePromotionImage = async ({ promotionId, objectKey }) => {
+  if (!promotionId) {
+    throw new Error("PROMOTION_ID_REQUIRED");
+  }
+
+  if (!objectKey) {
+    throw new Error("PROMOTION_IMAGE_OBJECT_KEY_REQUIRED");
+  }
+
+  const { data, error } = await supabase.functions.invoke(
+    "delete-promotion-image",
+    {
+      body: {
+        promotionId,
+        objectKey,
+      },
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data?.success) {
+    throw new Error("PROMOTION_IMAGE_DELETE_FAILED");
+  }
+
+  return data;
+};

@@ -9,6 +9,11 @@ import {
   updatePromotion,
 } from "../../services/promotion.service";
 
+import {
+  deletePromotionImage,
+  uploadPromotionImage,
+} from "../../services/promotionImage.service";
+
 const toDateTimeLocalValue = (value) => {
   if (!value) {
     return "";
@@ -108,6 +113,8 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
     }
 
     setSelectedImage(file);
+
+    setError("");
   };
 
   const handleSubmit = async (event) => {
@@ -146,14 +153,7 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
 
       setError("");
 
-      /*
-       * Görsel upload işlemini bir sonraki adımda
-       * R2 servisine bağlayacağız.
-       *
-       * Şimdilik mevcut imageObjectKey korunuyor.
-       */
-
-      const payload = {
+      const basePayload = {
         title: title.trim(),
 
         description: description.trim(),
@@ -169,14 +169,142 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
         sortOrder: order,
 
         isActive,
-
-        imageObjectKey,
       };
 
+      /*
+       * =========================================
+       * EDIT
+       * =========================================
+       */
+
       if (isEditMode) {
-        await updatePromotion(initialData.id, payload);
+        const promotionId = initialData.id;
+
+        const oldImageObjectKey = imageObjectKey;
+
+        let newImageObjectKey = oldImageObjectKey;
+
+        /*
+         * Yeni görsel seçilmişse önce R2'ye yükle.
+         *
+         * Eski görseli burada silmiyoruz.
+         * Önce DB'nin yeni görselle başarıyla
+         * güncellenmesini bekliyoruz.
+         */
+        if (selectedImage) {
+          const uploadResult = await uploadPromotionImage({
+            promotionId,
+
+            file: selectedImage,
+          });
+
+          newImageObjectKey = uploadResult.objectKey;
+        }
+
+        /*
+         * DB update.
+         */
+        await updatePromotion(promotionId, {
+          ...basePayload,
+
+          imageObjectKey: newImageObjectKey,
+        });
+
+        /*
+         * DB başarıyla yeni görsele geçtiyse
+         * eski R2 dosyasını temizle.
+         */
+        if (
+          selectedImage &&
+          oldImageObjectKey &&
+          oldImageObjectKey !== newImageObjectKey
+        ) {
+          try {
+            await deletePromotionImage({
+              promotionId,
+
+              objectKey: oldImageObjectKey,
+            });
+          } catch (deleteError) {
+            /*
+             * DB update başarılı olduğu için burada
+             * tüm kaydetme işlemini başarısız saymıyoruz.
+             *
+             * Sadece eski R2 dosyası orphan kalabilir.
+             */
+            console.error("Eski promosyon görseli silinemedi:", deleteError);
+          }
+        }
       } else {
-        await createPromotion(payload);
+        /*
+         * =========================================
+         * CREATE
+         * =========================================
+         */
+
+        /*
+         * Edge Function promotionId istediği için
+         * önce promosyon DB'de oluşturuluyor.
+         */
+        const createdPromotion = await createPromotion({
+          ...basePayload,
+
+          imageObjectKey: null,
+        });
+
+        /*
+         * Görsel seçilmemişse promosyon burada hazır.
+         */
+        if (selectedImage) {
+          let uploadedObjectKey = null;
+
+          try {
+            /*
+             * R2 upload.
+             */
+            const uploadResult = await uploadPromotionImage({
+              promotionId: createdPromotion.id,
+
+              file: selectedImage,
+            });
+
+            uploadedObjectKey = uploadResult.objectKey;
+
+            /*
+             * Upload tamamlandıktan sonra object key'i
+             * promotions tablosuna yaz.
+             */
+            await updatePromotion(createdPromotion.id, {
+              ...basePayload,
+
+              imageObjectKey: uploadedObjectKey,
+            });
+          } catch (uploadError) {
+            /*
+             * R2 upload başarılı olmuş ancak DB update
+             * başarısız olmuş olabilir.
+             *
+             * Böyle bir durumda orphan dosya bırakmamak
+             * için yüklenen dosyayı temizlemeye çalış.
+             */
+            if (uploadedObjectKey) {
+              try {
+                await deletePromotionImage({
+                  promotionId: createdPromotion.id,
+
+                  objectKey: uploadedObjectKey,
+                });
+              } catch (cleanupError) {
+                console.error(
+                  "Başarısız promosyon upload temizlenemedi:",
+                  cleanupError,
+                );
+              }
+            }
+
+            throw uploadError;
+          }
+        }
       }
 
       navigate("/dashboard/promotions");
@@ -373,7 +501,7 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
 
                 <div className="label">
                   <span className="label-text-alt text-base-content/60">
-                    JPG, PNG, WEBP veya AVIF
+                    JPG, PNG, WEBP veya AVIF — maksimum 10 MB
                   </span>
                 </div>
               </div>
@@ -398,6 +526,16 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
 
                   <div className="mt-1 truncate text-base-content/60">
                     {selectedImage.name}
+                  </div>
+                </div>
+              )}
+
+              {isEditMode && existingImage && !selectedImage && (
+                <div className="mt-3 rounded-xl bg-base-200 p-3 text-sm">
+                  <div className="font-medium">Mevcut görsel</div>
+
+                  <div className="mt-1 text-xs text-base-content/60">
+                    Yeni bir görsel seçmezseniz mevcut görsel korunacaktır.
                   </div>
                 </div>
               )}

@@ -1,15 +1,21 @@
 import PromotionsCard from "../components/PromotionsCard";
 
-const Promotions = ({ promotions }) => {
+const Promotions = ({ promotions = [] }) => {
+  if (!promotions.length) {
+    return null;
+  }
+
   return (
     <section className="mt-12 sm:mt-16 lg:mt-20">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {promotions.map((promo) => (
+        {promotions.map((promotion) => (
           <PromotionsCard
-            key={promo.id}
-            image={promo.image}
-            title={promo.title}
-            description={promo.description}
+            key={promotion.id}
+            image={promotion.image}
+            title={promotion.title}
+            description={promotion.description}
+            linkUrl={promotion.linkUrl}
+            discountPercentage={promotion.discountPercentage}
           />
         ))}
       </div>

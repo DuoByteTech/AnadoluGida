@@ -5,6 +5,8 @@ import PromotionTable from "../components/promotionsPage/PromotionTable";
 
 import { deletePromotion, getPromotions } from "../services/promotion.service";
 
+import { deletePromotionImage } from "../services/promotionImage.service";
+
 const PromotionsPage = () => {
   const [promotions, setPromotions] = useState([]);
 
@@ -17,6 +19,7 @@ const PromotionsPage = () => {
   const loadPromotions = async () => {
     try {
       setIsLoading(true);
+
       setError("");
 
       const data = await getPromotions();
@@ -37,19 +40,55 @@ const PromotionsPage = () => {
 
   const handleDeletePromotion = async (id) => {
     if (!id) {
-      return;
+      return false;
     }
 
     if (deletingPromotionId) {
-      return;
+      return false;
+    }
+
+    const promotion = promotions.find((item) => item.id === id);
+
+    if (!promotion) {
+      return false;
     }
 
     try {
       setDeletingPromotionId(id);
 
+      /*
+       * Önce DB kaydını siliyoruz.
+       *
+       * delete-promotion-image Edge Function'ımız
+       * promosyon DB'de artık bulunmasa bile
+       * promotions/{promotionId}/ prefix kontrolüyle
+       * orphan R2 dosyasını temizleyebiliyor.
+       */
       await deletePromotion(id);
 
-      setPromotions((prev) => prev.filter((promotion) => promotion.id !== id));
+      /*
+       * Promosyona bağlı R2 görseli varsa temizle.
+       *
+       * DB silme başarılı olduğu için R2 silme
+       * başarısız olursa promosyonu geri getirmiyoruz.
+       * Sadece orphan dosya kalmış olur.
+       */
+      if (promotion.imageObjectKey) {
+        try {
+          await deletePromotionImage({
+            promotionId: id,
+
+            objectKey: promotion.imageObjectKey,
+          });
+        } catch (imageDeleteError) {
+          console.error(
+            "Promosyon silindi fakat R2 görseli temizlenemedi:",
+            imageDeleteError,
+          );
+        }
+      }
+
+      setPromotions((prev) => prev.filter((item) => item.id !== id));
 
       return true;
     } catch (err) {
