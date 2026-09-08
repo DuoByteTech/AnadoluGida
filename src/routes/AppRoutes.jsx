@@ -29,6 +29,8 @@ import BrandsPage from "@/features/dashboard/pages/BrandsPage";
 import BrandFormPage from "../features/dashboard/pages/BrandFormPage";
 
 import PromotionsPage from "@/features/dashboard/pages/PromotionsPage";
+import PromotionFormPage from "@/features/dashboard/pages/PromotionFormPage";
+
 import DashboardAboutPage from "@/features/dashboard/pages/DashboardAboutPage";
 import LogoutPage from "@/features/dashboard/pages/LogoutPage";
 
@@ -93,6 +95,8 @@ const AppRoutes = () => {
 
           {/* Promotions */}
           <Route path="promotions" element={<PromotionsPage />} />
+          <Route path="promotions/new" element={<PromotionFormPage />} />
+          <Route path="promotions/:id/edit" element={<PromotionFormPage />} />
 
           {/* About */}
           <Route path="about" element={<DashboardAboutPage />} />
