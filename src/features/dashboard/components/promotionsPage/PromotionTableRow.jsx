@@ -22,22 +22,14 @@ const PromotionTableRow = ({ promotion, onDelete, isDeleting = false }) => {
   };
 
   const handleDelete = async () => {
-    if (isDeleting) {
+    if (!onDelete || isDeleting) {
       return;
     }
 
-    if (!onDelete) {
-      return;
-    }
+    const success = await onDelete(promotion.id);
 
-    try {
-      const success = await onDelete(promotion.id);
-
-      if (success) {
-        document.getElementById(modalId)?.close();
-      }
-    } catch (err) {
-      console.error("Promosyon satırından silme işlemi başarısız:", err);
+    if (success) {
+      document.getElementById(modalId)?.close();
     }
   };
 
@@ -55,31 +47,29 @@ const PromotionTableRow = ({ promotion, onDelete, isDeleting = false }) => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-center text-xs text-base-content/40">
+                  <div className="flex h-full w-full items-center justify-center text-xs text-base-content/40">
                     Görsel yok
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="min-w-0">
-              <div className="max-w-[400px] truncate font-semibold">
-                {promotion.title}
-              </div>
-
-              {promotion.description && (
-                <div className="mt-1 max-w-[500px] truncate text-xs text-base-content/60">
-                  {promotion.description}
-                </div>
-              )}
+            <div>
+              <div className="font-semibold">{promotion.title}</div>
             </div>
+          </div>
+        </td>
+
+        <td>
+          <div className="max-w-md truncate text-sm text-base-content/70">
+            {promotion.description || "-"}
           </div>
         </td>
 
         <td>
           <div className="flex justify-center gap-2">
             <Link
-              to={`/dashboard/promotions/${promotion.id}/edit`}
+              to={`/dashboard/promotions/edit/${promotion.id}`}
               className={`btn btn-sm btn-ghost rounded-xl ${
                 isDeleting ? "pointer-events-none opacity-50" : ""
               }`}
@@ -108,46 +98,39 @@ const PromotionTableRow = ({ promotion, onDelete, isDeleting = false }) => {
 
       <dialog id={modalId} className="modal">
         <div className="modal-box">
-          <h3 className="text-lg font-bold text-error">Silme Onayı</h3>
+          <h3 className="text-lg font-bold">Emin misiniz?</h3>
 
           <p className="py-4">
-            <b>{promotion.title}</b> promosyonunu silmek istiyor musunuz?
+            <b>{promotion.title}</b> promosyonunu silmek istediğinize emin
+            misiniz?
           </p>
 
-          {promotion.imageObjectKey && (
-            <div className="mb-4 rounded-xl bg-warning/10 p-3 text-sm">
-              Bu promosyonun görseli de kalıcı olarak silinecek.
-            </div>
-          )}
-
           <div className="modal-action">
-            <button
-              type="button"
-              className="btn"
-              onClick={closeModal}
-              disabled={isDeleting}
-            >
-              İptal
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="btn"
+                onClick={closeModal}
+                disabled={isDeleting}
+              >
+                İptal
+              </button>
 
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="btn btn-error text-white"
-            >
-              {isDeleting && (
-                <span className="loading loading-spinner loading-sm" />
-              )}
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="btn btn-error text-white"
+              >
+                {isDeleting && (
+                  <span className="loading loading-spinner loading-sm" />
+                )}
 
-              {isDeleting ? "Siliniyor..." : "Sil"}
-            </button>
+                {isDeleting ? "Siliniyor..." : "Sil"}
+              </button>
+            </div>
           </div>
         </div>
-
-        <form method="dialog" className="modal-backdrop">
-          <button disabled={isDeleting}>close</button>
-        </form>
       </dialog>
     </>
   );

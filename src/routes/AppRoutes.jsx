@@ -96,7 +96,7 @@ const AppRoutes = () => {
           {/* Promotions */}
           <Route path="promotions" element={<PromotionsPage />} />
           <Route path="promotions/new" element={<PromotionFormPage />} />
-          <Route path="promotions/:id/edit" element={<PromotionFormPage />} />
+          <Route path="promotions/edit/:id" element={<PromotionFormPage />} />
 
           {/* About */}
           <Route path="about" element={<DashboardAboutPage />} />

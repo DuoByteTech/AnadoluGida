@@ -11,14 +11,14 @@ const PromotionTable = ({ promotions = [], onDelete, deletingPromotionId }) => {
   const { currentPage, setCurrentPage, totalPages, paginatedItems } =
     usePagination({
       items: promotions,
-      itemsPerPage: 10,
+      itemsPerPage: 5,
       resetKey: promotions.length,
     });
 
   return (
     <Card className="border border-base-200 shadow-sm">
       <div className="card-body">
-        <div className="mb-4 flex items-center justify-between gap-4">
+        <div className="mb-4 flex items-center justify-between">
           <div>
             <CardTitle>Promosyon Listesi</CardTitle>
 
@@ -35,7 +35,7 @@ const PromotionTable = ({ promotions = [], onDelete, deletingPromotionId }) => {
             <thead className="bg-base-200/60">
               <tr>
                 <th>Promosyon</th>
-
+                <th>Açıklama</th>
                 <th className="text-center">İşlemler</th>
               </tr>
             </thead>
@@ -53,7 +53,7 @@ const PromotionTable = ({ promotions = [], onDelete, deletingPromotionId }) => {
               ) : (
                 <tr>
                   <td
-                    colSpan={2}
+                    colSpan={3}
                     className="py-10 text-center text-base-content/60"
                   >
                     Henüz promosyon bulunmuyor.
@@ -64,15 +64,13 @@ const PromotionTable = ({ promotions = [], onDelete, deletingPromotionId }) => {
           </table>
         </div>
 
-        {totalPages > 1 && (
-          <div className="mt-4 flex justify-end">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
-        )}
+        <div className="mt-4 flex justify-end">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
     </Card>
   );
