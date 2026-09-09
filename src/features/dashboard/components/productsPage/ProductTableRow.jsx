@@ -11,29 +11,19 @@ const ProductTableRow = ({
   const modalId = `delete_product_modal_${product.id}`;
 
   const openModal = () => {
-    if (isDeleting) {
-      return;
-    }
+    if (isDeleting) return;
 
     document.getElementById(modalId)?.showModal();
   };
 
   const closeModal = () => {
-    if (isDeleting) {
-      return;
-    }
+    if (isDeleting) return;
 
     document.getElementById(modalId)?.close();
   };
 
   const handleDelete = async () => {
-    if (isDeleting) {
-      return;
-    }
-
-    if (!onDelete) {
-      return;
-    }
+    if (isDeleting || !onDelete) return;
 
     try {
       await onDelete(product.id);
@@ -45,7 +35,6 @@ const ProductTableRow = ({
   };
 
   const discountPercentage = Number(product.discountPercentage) || 0;
-
   const hasDiscount = discountPercentage > 0;
 
   const basePrice = Number(product.price) || 0;
@@ -90,33 +79,35 @@ const ProductTableRow = ({
         <td>{product.brand || "-"}</td>
 
         <td>
-          <div className="flex flex-col">
-            <span className="font-semibold">€{finalPrice.toFixed(2)}</span>
-
-            {hasDiscount && (
-              <span className="text-xs text-base-content/50 line-through">
-                €{basePrice.toFixed(2)}
+          {hasDiscount ? (
+            <div className="flex flex-col gap-1">
+              <span className="font-semibold text-brand-red-700">
+                €{finalPrice.toFixed(2)}
               </span>
-            )}
-          </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-base-content/50 line-through">
+                  €{basePrice.toFixed(2)}
+                </span>
+
+                <span className="badge badge-error badge-xs text-white">
+                  -{discountPercentage}%
+                </span>
+              </div>
+            </div>
+          ) : (
+            <span className="font-semibold">€{basePrice.toFixed(2)}</span>
+          )}
         </td>
 
         <td>
-          <div className="flex flex-wrap gap-2">
-            {product.isActive ? (
-              <span className="badge badge-success badge-sm text-white">
-                Aktif
-              </span>
-            ) : (
-              <span className="badge badge-ghost badge-sm">Pasif</span>
-            )}
-
-            {hasDiscount && (
-              <span className="badge badge-error badge-sm text-white">
-                -{discountPercentage}%
-              </span>
-            )}
-          </div>
+          {product.isActive ? (
+            <span className="badge badge-success badge-sm text-white">
+              Aktif
+            </span>
+          ) : (
+            <span className="badge badge-error badge-sm text-white">Pasif</span>
+          )}
         </td>
 
         <td>
@@ -135,7 +126,7 @@ const ProductTableRow = ({
               type="button"
               onClick={openModal}
               disabled={isDeleting}
-              className="btn btn-sm btn-error btn-outline rounded-xl hover:text-white"
+              className="btn btn-sm rounded-xl border-brand-red-700 bg-transparent text-brand-red-700 hover:border-brand-red-800 hover:bg-brand-red-800 hover:text-white"
             >
               {isDeleting ? (
                 <span className="loading loading-spinner loading-xs" />
@@ -151,7 +142,7 @@ const ProductTableRow = ({
 
       <dialog id={modalId} className="modal">
         <div className="modal-box">
-          <h3 className="text-lg font-bold text-error">Silme Onayı</h3>
+          <h3 className="text-lg font-bold text-brand-red-700">Silme Onayı</h3>
 
           <p className="py-4">
             <b>{product.name}</b> ürününü silmek istiyor musunuz?
@@ -178,7 +169,7 @@ const ProductTableRow = ({
               type="button"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="btn btn-error text-white"
+              className="btn rounded-xl border-brand-red-700 bg-brand-red-700 text-white hover:border-brand-red-800 hover:bg-brand-red-800"
             >
               {isDeleting && (
                 <span className="loading loading-spinner loading-sm" />

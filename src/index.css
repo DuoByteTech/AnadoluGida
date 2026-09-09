@@ -1,13 +1,64 @@
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: light --default;
+  themes: false;
 }
 
 @plugin "daisyui/theme" {
-  name: "mytheme";
+  name: "anadolu";
   default: true;
-  /* set as default */
+  prefersdark: false;
+
+  /* Base */
+  --color-base-100: #ffffff;
+  --color-base-200: #f8f8f6;
+  --color-base-300: #eeeeea;
+  --color-base-content: #263123;
+
+  /* Primary = Green */
+  --color-primary: #4a5d3a;
+  --color-primary-content: #ffffff;
+
+  /* Secondary = Cream */
+  --color-secondary: #f8edd6;
+  --color-secondary-content: #39492f;
+
+  /* Accent */
+  --color-accent: #83976f;
+  --color-accent-content: #ffffff;
+
+  /* Neutral */
+  --color-neutral: #263123;
+  --color-neutral-content: #ffffff;
+
+  /* Semantic */
+  --color-info: #64794f;
+  --color-info-content: #ffffff;
+
+  --color-success: #4a5d3a;
+  --color-success-content: #ffffff;
+
+  --color-warning: #e9ddc5;
+  --color-warning-content: #39492f;
+
+  --color-error: #9d3c30;
+  --color-error-content: #ffffff;
+
+  /* Radius */
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+
+  /* Sizes */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  /* Border */
+  --border: 1px;
+
+  /* Effects */
+  --depth: 1;
+  --noise: 0;
 }
 
 @theme {
@@ -20,7 +71,6 @@
   --color-brand-green-200: #ccd6c1;
   --color-brand-green-300: #aab99b;
   --color-brand-green-400: #83976f;
-
   --color-brand-green-500: #64794f;
   --color-brand-green-600: #4a5d3a;
   --color-brand-green-700: #39492f;
@@ -29,15 +79,14 @@
   --color-brand-green-950: #131b11;
 
   /* =========================
-        ANADOLU GIDA - RED
-        ========================= */
+     ANADOLU GIDA - RED
+     ========================= */
 
   --color-brand-red-50: #fff4f1;
   --color-brand-red-100: #ffe4de;
   --color-brand-red-200: #ffcfc4;
   --color-brand-red-300: #f5a898;
   --color-brand-red-400: #e77c69;
-
   --color-brand-red-500: #d85c4a;
   --color-brand-red-600: #bd4939;
   --color-brand-red-700: #9d3c30;
@@ -46,8 +95,8 @@
   --color-brand-red-950: #3a1713;
 
   /* =========================
-        ANADOLU GIDA - CREAM
-        ========================= */
+     ANADOLU GIDA - CREAM
+     ========================= */
 
   --color-brand-cream-50: #fffdf8;
   --color-brand-cream-100: #fff7e8;

@@ -8,7 +8,7 @@ const ProductHeader = () => {
       url={"products/new"}
       linkText={"Ürün Ekle"}
     />
-  )
+  );
 };
 
 export default ProductHeader;
