@@ -76,8 +76,8 @@ const ProductGallery = ({
         </div>
       </Card>
 
-      {safeImages.length > 1 && (
-        <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+      {safeImages.length > 0 && (
+        <div className="mt-6 mb-8 flex gap-3 overflow-x-auto pb-2">
           {safeImages.map((src, index) => {
             const isActive = index === safeIndex;
 
