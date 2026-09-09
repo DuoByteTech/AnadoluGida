@@ -1,10 +1,22 @@
 import { NavLink } from "react-router-dom";
+
 import logo from "/anadolugida.png";
 import menuItems from "@/features/dashboard/constants/menuItems";
 
-const Sidebar = () => {
-  const logoutItem = menuItems.find((item) => item.path === "/dashboard/logout");
-  const mainMenu = menuItems.filter((item) => item.path !== "/dashboard/logout");
+const Sidebar = ({ onNavigate }) => {
+  const logoutItem = menuItems.find(
+    (item) => item.path === "/dashboard/logout",
+  );
+
+  const mainMenu = menuItems.filter(
+    (item) => item.path !== "/dashboard/logout",
+  );
+
+  const handleNavigate = () => {
+    if (window.innerWidth < 1024) {
+      onNavigate?.();
+    }
+  };
 
   return (
     <div className="drawer-side z-40 is-drawer-close:overflow-visible">
@@ -15,10 +27,13 @@ const Sidebar = () => {
       />
 
       <aside className="flex min-h-full w-80 max-w-[85vw] flex-col border-r border-base-200 bg-base-100 transition-all duration-300 lg:is-drawer-close:w-20 lg:is-drawer-open:w-72">
-
         {/* Logo */}
         <div className="border-b border-base-300">
-          <NavLink to="/" className="flex items-center gap-4 px-3 py-4">
+          <NavLink
+            to="/"
+            onClick={handleNavigate}
+            className="flex items-center gap-4 px-3 py-4"
+          >
             <div className="flex h-10 w-13.5 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
               <img
                 src={logo}
@@ -49,6 +64,7 @@ const Sidebar = () => {
                   to={item.path}
                   end={item.path === "/dashboard"}
                   data-tip={item.label}
+                  onClick={handleNavigate}
                   className={({ isActive }) =>
                     [
                       "group relative flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all duration-200",
@@ -62,10 +78,13 @@ const Sidebar = () => {
                   {({ isActive }) => (
                     <>
                       <span
-                        className={`absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full transition ${isActive ? "bg-primary" : "bg-transparent"
-                          }`}
+                        className={`absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full transition ${
+                          isActive ? "bg-primary" : "bg-transparent"
+                        }`}
                       />
+
                       <span className="shrink-0">{item.icon}</span>
+
                       <span className="lg:is-drawer-close:hidden">
                         {item.label}
                       </span>
@@ -76,16 +95,18 @@ const Sidebar = () => {
             ))}
           </ul>
 
-          {/* Logout - en aşağı */}
+          {/* Logout */}
           {logoutItem && (
-            <ul className="menu mt-auto w-full gap-1 p-0 pt-6 border-t border-base-300">
+            <ul className="menu mt-auto w-full gap-1 border-t border-base-300 p-0 pt-6">
               <li>
                 <NavLink
                   to={logoutItem.path}
                   data-tip={logoutItem.label}
-                  className="group relative flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium text-error hover:bg-error/10 transition-all duration-200 lg:is-drawer-close:tooltip lg:is-drawer-close:tooltip-right lg:is-drawer-close:justify-center"
+                  onClick={handleNavigate}
+                  className="group relative flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium text-error transition-all duration-200 hover:bg-error/10 lg:is-drawer-close:tooltip lg:is-drawer-close:tooltip-right lg:is-drawer-close:justify-center"
                 >
                   <span className="shrink-0">{logoutItem.icon}</span>
+
                   <span className="lg:is-drawer-close:hidden">
                     {logoutItem.label}
                   </span>
