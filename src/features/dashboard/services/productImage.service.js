@@ -37,8 +37,8 @@ export const createProductImageUpload = async ({ file, productId }) => {
     {
       body: {
         productId,
-
         contentType: file.type,
+        fileSize: file.size,
       },
     },
   );
@@ -78,11 +78,8 @@ export const uploadProductImage = async ({ file, productId }) => {
 
   return {
     key: upload.key,
-
     url: getR2PublicUrl(upload.key),
-
     contentType: file.type,
-
     size: file.size,
   };
 };
@@ -91,13 +88,10 @@ export const uploadProductImages = async ({ files, productId }) => {
   if (!productId) {
     throw new Error("PRODUCT_ID_REQUIRED");
   }
-
   const imageFiles = Array.from(files || []);
-
   if (imageFiles.length === 0) {
     return [];
   }
-
   /*
    * Tüm dosyaları upload
    * başlamadan önce doğrula.
