@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import PageHeader from "../PageHeader";
 
@@ -44,7 +45,7 @@ const CategoryForm = ({ isEditMode, initialData }) => {
     const name = formData.name.trim();
 
     if (!name) {
-      alert("Kategori adı boş bırakılamaz.");
+      toast.error("Kategori adı boş bırakılamaz.");
       return;
     }
 
@@ -58,8 +59,12 @@ const CategoryForm = ({ isEditMode, initialData }) => {
 
       if (isEditMode) {
         await updateCategory(initialData.id, payload);
+
+        toast.success("Kategori başarıyla güncellendi.");
       } else {
         await createCategory(payload);
+
+        toast.success("Kategori başarıyla eklendi.");
       }
 
       navigate("/dashboard/categories");
@@ -67,11 +72,11 @@ const CategoryForm = ({ isEditMode, initialData }) => {
       console.error("Kategori kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu kategori zaten kullanılıyor.");
+        toast.error("Bu kategori zaten kullanılıyor.");
         return;
       }
 
-      alert("Kategori kaydedilirken bir hata oluştu.");
+      toast.error("Kategori kaydedilirken bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import PageHeader from "../PageHeader";
 
@@ -27,7 +28,6 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     setFormData({
@@ -36,7 +36,10 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
     });
 
     setImageObjectKey(initialData?.imageObjectKey ?? null);
+
     setExistingImage(initialData?.image ?? null);
+
+    setSelectedImage(null);
   }, [initialData]);
 
   useEffect(() => {
@@ -70,8 +73,42 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
       return;
     }
 
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Sadece JPG, PNG, WEBP veya AVIF yükleyebilirsiniz.");
+
+      event.target.value = "";
+      return;
+    }
+
+    const maxSize = 10 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      toast.error("Görsel boyutu en fazla 10 MB olabilir.");
+
+      event.target.value = "";
+      return;
+    }
+
     setSelectedImage(file);
-    setError("");
+  };
+
+  const validateForm = () => {
+    const title = formData.title.trim();
+
+    if (!title) {
+      toast.error("Promosyon başlığı boş bırakılamaz.");
+
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async (event) => {
@@ -81,17 +118,15 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
       return;
     }
 
-    const title = formData.title.trim();
-    const description = formData.description.trim();
-
-    if (!title) {
-      setError("Promosyon başlığı boş bırakılamaz.");
+    if (!validateForm()) {
       return;
     }
 
+    const title = formData.title.trim();
+    const description = formData.description.trim();
+
     try {
       setIsSubmitting(true);
-      setError("");
 
       const basePayload = {
         title,
@@ -102,6 +137,7 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
         const promotionId = initialData.id;
 
         const oldImageObjectKey = imageObjectKey;
+
         let newImageObjectKey = oldImageObjectKey;
 
         if (selectedImage) {
@@ -130,8 +166,14 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
             });
           } catch (deleteError) {
             console.error("Eski promosyon görseli silinemedi:", deleteError);
+
+            toast.error(
+              "Promosyon güncellendi ancak eski görsel R2 üzerinden temizlenemedi.",
+            );
           }
         }
+
+        toast.success("Promosyon başarıyla güncellendi.");
       } else {
         const createdPromotion = await createPromotion({
           ...basePayload,
@@ -168,13 +210,45 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
             throw uploadError;
           }
         }
+
+        toast.success("Promosyon başarıyla eklendi.");
       }
 
       navigate("/dashboard/promotions");
     } catch (err) {
       console.error("Promosyon kaydedilirken hata oluştu:", err);
 
-      setError("Promosyon kaydedilirken bir hata oluştu.");
+      if (err?.code === "23505") {
+        toast.error("Bu promosyon zaten kullanılıyor.");
+
+        return;
+      }
+
+      if (err?.message === "IMAGE_TOO_LARGE") {
+        toast.error("Görsel boyutu en fazla 10 MB olabilir.");
+
+        return;
+      }
+
+      if (err?.message === "UNSUPPORTED_IMAGE_TYPE") {
+        toast.error("Sadece JPG, PNG, WEBP veya AVIF yükleyebilirsiniz.");
+
+        return;
+      }
+
+      if (err?.message?.startsWith("R2_UPLOAD_FAILED_")) {
+        toast.error("Promosyon kaydedilemedi. Görsel R2'ye yüklenemedi.");
+
+        return;
+      }
+
+      if (err?.message === "R2_DELETE_FAILED") {
+        toast.error("Promosyon görseli R2 üzerinden silinemedi.");
+
+        return;
+      }
+
+      toast.error("Promosyon kaydedilirken bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -197,12 +271,6 @@ const PromotionForm = ({ isEditMode = false, initialData = null }) => {
 
       <div className="rounded-xl bg-base-100 p-6 shadow-md">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="alert alert-error">
-              <span>{error}</span>
-            </div>
-          )}
-
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Promosyon Başlığı</legend>
 

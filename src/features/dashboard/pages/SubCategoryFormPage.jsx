@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import SubCategoryForm from "../components/subCategoriesPage/SubCategoryForm";
 
@@ -8,49 +9,61 @@ import { getSubCategoryById } from "../services/subCategory.service";
 const SubCategoryFormPage = () => {
   const { id } = useParams();
 
+  const navigate = useNavigate();
+
   const isEditMode = Boolean(id);
 
   const [initialData, setInitialData] = useState(null);
   const [isLoading, setIsLoading] = useState(isEditMode);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isEditMode) {
       return;
     }
 
+    let isMounted = true;
+
     const loadSubCategory = async () => {
       try {
         setIsLoading(true);
-        setError("");
 
         const data = await getSubCategoryById(id);
+
+        if (!isMounted) {
+          return;
+        }
 
         setInitialData(data);
       } catch (err) {
         console.error("Alt kategori yüklenirken hata oluştu:", err);
 
-        setError("Alt kategori bilgileri yüklenemedi.");
+        if (!isMounted) {
+          return;
+        }
+
+        toast.error("Alt kategori bilgileri yüklenemedi.");
+
+        navigate("/dashboard/subcategories", {
+          replace: true,
+        });
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadSubCategory();
-  }, [id, isEditMode]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, isEditMode, navigate]);
 
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <span className="loading loading-spinner loading-lg" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <span>{error}</span>
       </div>
     );
   }

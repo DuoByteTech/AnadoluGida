@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import ProductForm from "./ProductForm";
 
@@ -8,51 +9,62 @@ import { getProductById } from "../../services/product.service";
 const ProductFormPage = () => {
   const { id } = useParams();
 
+  const navigate = useNavigate();
+
   const isEditMode = Boolean(id);
 
   const [initialData, setInitialData] = useState(null);
 
   const [isLoading, setIsLoading] = useState(isEditMode);
 
-  const [error, setError] = useState("");
-
   useEffect(() => {
     if (!isEditMode) {
       return;
     }
 
+    let isMounted = true;
+
     const loadProduct = async () => {
       try {
         setIsLoading(true);
-        setError("");
 
         const product = await getProductById(id);
+
+        if (!isMounted) {
+          return;
+        }
 
         setInitialData(product);
       } catch (err) {
         console.error("Ürün yüklenirken hata oluştu:", err);
 
-        setError("Ürün bilgileri yüklenemedi.");
+        if (!isMounted) {
+          return;
+        }
+
+        toast.error("Ürün bilgileri yüklenemedi.");
+
+        navigate("/dashboard/products", {
+          replace: true,
+        });
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadProduct();
-  }, [id, isEditMode]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, isEditMode, navigate]);
 
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <span className="loading loading-spinner loading-lg" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <span>{error}</span>
       </div>
     );
   }

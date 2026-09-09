@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import PageHeader from "../PageHeader";
 
@@ -34,7 +35,7 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
       } catch (err) {
         console.error("Kategoriler yüklenirken hata oluştu:", err);
 
-        alert("Kategori listesi yüklenemedi.");
+        toast.error("Kategori listesi yüklenemedi.");
       } finally {
         setIsLoadingCategories(false);
       }
@@ -68,14 +69,14 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
     }
 
     if (!formData.categoryId) {
-      alert("Lütfen bir kategori seçin.");
+      toast.error("Lütfen bir kategori seçin.");
       return;
     }
 
     const name = formData.name.trim();
 
     if (!name) {
-      alert("Alt kategori adı boş bırakılamaz.");
+      toast.error("Alt kategori adı boş bırakılamaz.");
       return;
     }
 
@@ -90,8 +91,12 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
 
       if (isEditMode) {
         await updateSubCategory(initialData.id, payload);
+
+        toast.success("Alt kategori başarıyla güncellendi.");
       } else {
         await createSubCategory(payload);
+
+        toast.success("Alt kategori başarıyla eklendi.");
       }
 
       navigate("/dashboard/subcategories");
@@ -99,11 +104,16 @@ const SubCategoryForm = ({ isEditMode, initialData }) => {
       console.error("Alt kategori kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu alt kategori zaten kullanılıyor.");
+        toast.error("Bu alt kategori zaten kullanılıyor.");
         return;
       }
 
-      alert("Alt kategori kaydedilirken bir hata oluştu.");
+      if (err?.code === "23503") {
+        toast.error("Seçilen kategori geçersiz veya artık mevcut değil.");
+        return;
+      }
+
+      toast.error("Alt kategori kaydedilirken bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }

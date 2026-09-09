@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import ProductHeader from "../components/productsPage/ProductHeader";
 import ProductTable from "../components/productsPage/ProductTable";
@@ -32,6 +33,8 @@ const ProductsPage = () => {
       console.error("Ürünler yüklenirken hata oluştu:", err);
 
       setError("Ürünler yüklenirken bir hata oluştu.");
+
+      toast.error("Ürünler yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -86,18 +89,20 @@ const ProductsPage = () => {
       await deleteProduct(id);
 
       setProducts((prev) => prev.filter((item) => item.id !== id));
+
+      toast.success("Ürün başarıyla silindi.");
     } catch (err) {
       console.error("Ürün silinirken hata oluştu:", err);
 
       if (err?.message === "R2_DELETE_FAILED") {
-        alert(
+        toast.error(
           "Ürün görselleri R2 üzerinden silinemedi. Ürün silme işlemi durduruldu.",
         );
 
         return;
       }
 
-      alert("Ürün silinirken bir hata oluştu.");
+      toast.error("Ürün silinirken bir hata oluştu.");
     } finally {
       setDeletingProductId(null);
     }

@@ -1,36 +1,52 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import PromotionForm from "../components/promotionsPage/PromotionForm";
+
 import { getPromotionById } from "../services/promotion.service";
 
 const PromotionFormPage = () => {
   const { id } = useParams();
+
+  const navigate = useNavigate();
+
   const isEditMode = Boolean(id);
+
   const [initialData, setInitialData] = useState(null);
+
   const [isLoading, setIsLoading] = useState(isEditMode);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isEditMode) {
       return;
     }
+
     let isMounted = true;
+
     const loadPromotion = async () => {
       try {
         setIsLoading(true);
 
-        setError("");
         const promotion = await getPromotionById(id);
 
         if (!isMounted) {
           return;
         }
+
         setInitialData(promotion);
       } catch (err) {
         console.error("Promosyon yüklenirken hata oluştu:", err);
-        if (isMounted) {
-          setError("Promosyon bilgileri yüklenemedi.");
+
+        if (!isMounted) {
+          return;
         }
+
+        toast.error("Promosyon bilgileri yüklenemedi.");
+
+        navigate("/dashboard/promotions", {
+          replace: true,
+        });
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -43,20 +59,12 @@ const PromotionFormPage = () => {
     return () => {
       isMounted = false;
     };
-  }, [id, isEditMode]);
+  }, [id, isEditMode, navigate]);
 
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <span className="loading loading-spinner loading-lg" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <span>{error}</span>
       </div>
     );
   }

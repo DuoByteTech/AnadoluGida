@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import PromotionHeader from "../components/promotionsPage/PromotionHeader";
 import PromotionTable from "../components/promotionsPage/PromotionTable";
@@ -29,6 +30,8 @@ const PromotionsPage = () => {
       console.error("Promosyonlar yüklenirken hata oluştu:", err);
 
       setError("Promosyonlar yüklenirken bir hata oluştu.");
+
+      toast.error("Promosyonlar yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -50,6 +53,7 @@ const PromotionsPage = () => {
     const promotion = promotions.find((item) => item.id === id);
 
     if (!promotion) {
+      toast.error("Silinecek promosyon bulunamadı.");
       return false;
     }
 
@@ -66,6 +70,8 @@ const PromotionsPage = () => {
        */
       await deletePromotion(id);
 
+      let imageDeleteFailed = false;
+
       /*
        * Promosyona bağlı R2 görseli varsa temizle.
        *
@@ -77,7 +83,6 @@ const PromotionsPage = () => {
         try {
           await deletePromotionImage({
             promotionId: id,
-
             objectKey: promotion.imageObjectKey,
           });
         } catch (imageDeleteError) {
@@ -85,16 +90,36 @@ const PromotionsPage = () => {
             "Promosyon silindi fakat R2 görseli temizlenemedi:",
             imageDeleteError,
           );
+
+          imageDeleteFailed = true;
         }
       }
 
       setPromotions((prev) => prev.filter((item) => item.id !== id));
 
+      if (imageDeleteFailed) {
+        toast.success("Promosyon başarıyla silindi.");
+
+        toast.error(
+          "Promosyon silindi ancak görsel R2 üzerinden temizlenemedi.",
+        );
+      } else {
+        toast.success("Promosyon başarıyla silindi.");
+      }
+
       return true;
     } catch (err) {
       console.error("Promosyon silinirken hata oluştu:", err);
 
-      alert("Promosyon silinemedi.");
+      if (err?.code === "23503") {
+        toast.error(
+          "Promosyon silinemiyor. Promosyona bağlı kayıtlar bulunuyor.",
+        );
+
+        return false;
+      }
+
+      toast.error("Promosyon silinirken bir hata oluştu.");
 
       return false;
     } finally {

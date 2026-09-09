@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import SubCategoryHeader from "../components/subCategoriesPage/SubCategoryHeader";
 import SubCategoryTable from "../components/subCategoriesPage/SubCategoryTable";
@@ -35,6 +36,8 @@ const SubCategoriesPage = () => {
       console.error("Alt kategoriler yüklenirken hata oluştu:", err);
 
       setError("Alt kategoriler yüklenirken bir hata oluştu.");
+
+      toast.error("Alt kategoriler yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -45,14 +48,27 @@ const SubCategoriesPage = () => {
   }, []);
 
   const handleDelete = async (id) => {
+    if (!id) {
+      return;
+    }
+
     try {
       await deleteSubCategory(id);
 
       setSubcategories((prev) => prev.filter((item) => item.id !== id));
+
+      toast.success("Alt kategori başarıyla silindi.");
     } catch (err) {
       console.error("Alt kategori silinirken hata oluştu:", err);
 
-      alert("Alt kategori silinemedi.");
+      if (err?.code === "23503") {
+        toast.error(
+          "Bu alt kategori silinemiyor. Alt kategoriye bağlı ürünler bulunuyor.",
+        );
+        return;
+      }
+
+      toast.error("Alt kategori silinirken bir hata oluştu.");
     }
   };
 

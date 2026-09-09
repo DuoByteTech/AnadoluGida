@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import PageHeader from "../PageHeader";
 
@@ -41,7 +42,7 @@ const BrandForm = ({ isEditMode, initialData }) => {
     const name = formData.name.trim();
 
     if (!name) {
-      alert("Marka adı boş bırakılamaz.");
+      toast.error("Marka adı boş bırakılamaz.");
       return;
     }
 
@@ -55,8 +56,12 @@ const BrandForm = ({ isEditMode, initialData }) => {
 
       if (isEditMode) {
         await updateBrand(initialData.id, payload);
+
+        toast.success("Marka başarıyla güncellendi.");
       } else {
         await createBrand(payload);
+
+        toast.success("Marka başarıyla eklendi.");
       }
 
       navigate("/dashboard/brands");
@@ -64,11 +69,11 @@ const BrandForm = ({ isEditMode, initialData }) => {
       console.error("Marka kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu marka zaten kullanılıyor.");
+        toast.error("Bu marka zaten kullanılıyor.");
         return;
       }
 
-      alert("Marka kaydedilirken bir hata oluştu.");
+      toast.error("Marka kaydedilirken bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }

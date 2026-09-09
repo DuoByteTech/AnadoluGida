@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import CategoryHeader from "../components/categoriesPage/CategoryHeader";
 import CategoryTable from "../components/categoriesPage/CategoryTable";
@@ -22,6 +23,8 @@ const CategoriesPage = () => {
       console.error("Kategoriler yüklenirken hata oluştu:", err);
 
       setError("Kategoriler yüklenirken bir hata oluştu.");
+
+      toast.error("Kategoriler yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -32,14 +35,29 @@ const CategoriesPage = () => {
   }, []);
 
   const handleDeleteCategory = async (id) => {
+    if (!id) {
+      return;
+    }
+
     try {
       await deleteCategory(id);
 
       setCategories((prev) => prev.filter((category) => category.id !== id));
+
+      toast.success("Kategori başarıyla silindi.");
     } catch (err) {
       console.error("Kategori silinirken hata oluştu:", err);
 
-      alert("Kategori silinemedi. Bu kategoriye bağlı ürünler olabilir.");
+      if (err?.code === "23503") {
+        toast.error(
+          "Bu kategori silinemiyor. Kategoriye bağlı alt kategoriler veya ürünler bulunuyor.",
+        );
+        return;
+      }
+
+      toast.error(
+        "Kategori silinemedi. Bu kategoriye bağlı kayıtlar olabilir.",
+      );
     }
   };
 

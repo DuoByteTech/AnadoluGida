@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import CategoryForm from "../components/categoriesPage/CategoryForm";
 
@@ -8,49 +9,61 @@ import { getCategoryById } from "../services/category.service";
 const CategoryFormPage = () => {
   const { id } = useParams();
 
+  const navigate = useNavigate();
+
   const isEditMode = Boolean(id);
 
   const [initialData, setInitialData] = useState(null);
   const [isLoading, setIsLoading] = useState(isEditMode);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isEditMode) {
       return;
     }
 
+    let isMounted = true;
+
     const loadCategory = async () => {
       try {
         setIsLoading(true);
-        setError("");
 
         const category = await getCategoryById(id);
+
+        if (!isMounted) {
+          return;
+        }
 
         setInitialData(category);
       } catch (err) {
         console.error("Kategori yüklenirken hata oluştu:", err);
 
-        setError("Kategori bilgileri yüklenemedi.");
+        if (!isMounted) {
+          return;
+        }
+
+        toast.error("Kategori bilgileri yüklenemedi.");
+
+        navigate("/dashboard/categories", {
+          replace: true,
+        });
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadCategory();
-  }, [id, isEditMode]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, isEditMode, navigate]);
 
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <span className="loading loading-spinner loading-lg" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <span>{error}</span>
       </div>
     );
   }

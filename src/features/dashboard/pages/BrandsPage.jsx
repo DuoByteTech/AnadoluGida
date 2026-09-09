@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import BrandHeader from "../components/brandsPage/BrandHeader";
 import BrandTable from "../components/brandsPage/BrandTable";
@@ -22,6 +23,8 @@ const BrandsPage = () => {
       console.error("Markalar yüklenirken hata oluştu:", err);
 
       setError("Markalar yüklenirken bir hata oluştu.");
+
+      toast.error("Markalar yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -32,14 +35,25 @@ const BrandsPage = () => {
   }, []);
 
   const handleDeleteBrand = async (id) => {
+    if (!id) {
+      return;
+    }
+
     try {
       await deleteBrand(id);
 
       setBrands((prev) => prev.filter((brand) => brand.id !== id));
+
+      toast.success("Marka başarıyla silindi.");
     } catch (err) {
       console.error("Marka silinirken hata oluştu:", err);
 
-      alert("Marka silinemedi.");
+      if (err?.code === "23503") {
+        toast.error("Bu marka silinemiyor. Markaya bağlı ürünler bulunuyor.");
+        return;
+      }
+
+      toast.error("Marka silinirken bir hata oluştu.");
     }
   };
 

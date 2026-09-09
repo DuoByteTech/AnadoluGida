@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import PageHeader from "../PageHeader";
 
@@ -61,7 +62,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
       } catch (err) {
         console.error("Ürün form seçenekleri yüklenirken hata oluştu:", err);
 
-        alert("Kategori, alt kategori veya marka listesi yüklenemedi.");
+        toast.error("Kategori, alt kategori veya marka listesi yüklenemedi.");
       } finally {
         setIsLoadingOptions(false);
       }
@@ -160,27 +161,31 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
   const validateForm = () => {
     if (!formData.name.trim()) {
-      alert("Ürün adı boş bırakılamaz.");
+      toast.error("Ürün adı boş bırakılamaz.");
       return false;
     }
 
     if (!formData.categoryId) {
-      alert("Lütfen kategori seçin.");
+      toast.error("Lütfen kategori seçin.");
       return false;
     }
 
     if (!formData.subcategoryId) {
-      alert("Lütfen alt kategori seçin.");
+      toast.error("Lütfen alt kategori seçin.");
       return false;
     }
 
     if (!formData.brandId) {
-      alert("Lütfen marka seçin.");
+      toast.error("Lütfen marka seçin.");
       return false;
     }
 
-    if (formData.price === "" || Number(formData.price) < 0) {
-      alert("Geçerli bir fiyat girin.");
+    if (
+      formData.price === "" ||
+      !Number.isFinite(Number(formData.price)) ||
+      Number(formData.price) < 0
+    ) {
+      toast.error("Geçerli bir fiyat girin.");
       return false;
     }
 
@@ -191,7 +196,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
       discountPercentage < 0 ||
       discountPercentage > 100
     ) {
-      alert("İndirim oranı %0 ile %100 arasında olmalıdır.");
+      toast.error("İndirim oranı %0 ile %100 arasında olmalıdır.");
       return false;
     }
 
@@ -261,7 +266,7 @@ const ProductForm = ({ isEditMode, initialData }) => {
         await normalizeProductImages(product.id);
       }
 
-      alert(
+      toast.success(
         isEditMode ? "Ürün başarıyla güncellendi." : "Ürün başarıyla eklendi.",
       );
 
@@ -270,31 +275,31 @@ const ProductForm = ({ isEditMode, initialData }) => {
       console.error("Ürün kaydedilirken hata oluştu:", err);
 
       if (err?.code === "23505") {
-        alert("Bu ürün zaten kullanılıyor.");
+        toast.error("Bu ürün zaten kullanılıyor.");
         return;
       }
 
       if (err?.message === "IMAGE_TOO_LARGE") {
-        alert("Görsel boyutu en fazla 10 MB olabilir.");
+        toast.error("Görsel boyutu en fazla 10 MB olabilir.");
         return;
       }
 
       if (err?.message === "UNSUPPORTED_IMAGE_TYPE") {
-        alert("Sadece JPG, PNG, WEBP veya AVIF yükleyebilirsiniz.");
+        toast.error("Sadece JPG, PNG, WEBP veya AVIF yükleyebilirsiniz.");
         return;
       }
 
       if (err?.message?.startsWith("R2_UPLOAD_FAILED_")) {
-        alert("Ürün kaydedildi ancak görsel R2'ye yüklenemedi.");
+        toast.error("Ürün kaydedildi ancak görsel R2'ye yüklenemedi.");
         return;
       }
 
       if (err?.message === "R2_DELETE_FAILED") {
-        alert("Ürün görseli R2 üzerinden silinemedi.");
+        toast.error("Ürün görseli R2 üzerinden silinemedi.");
         return;
       }
 
-      alert("Ürün kaydedilirken bir hata oluştu.");
+      toast.error("Ürün kaydedilirken bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -446,7 +451,9 @@ const ProductForm = ({ isEditMode, initialData }) => {
 
             <div className="mt-2 space-y-1 text-sm text-base-content/60">
               <p>Birden fazla görsel seçebilirsiniz.</p>
+
               <p>Desteklenen formatlar: JPG, PNG, WEBP ve AVIF.</p>
+
               <p>Her görsel en fazla 10 MB olabilir.</p>
             </div>
 

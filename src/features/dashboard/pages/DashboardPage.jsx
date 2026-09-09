@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import DashboardHeader from "@/features/dashboard/components/dashboardPage/DashboardHeader";
 import DashboardStats from "@/features/dashboard/components/dashboardPage/DashboardStats";
@@ -36,6 +37,8 @@ const DashboardPage = () => {
       console.error("Dashboard verileri yüklenemedi:", err);
 
       setError("Dashboard verileri yüklenirken bir hata oluştu.");
+
+      toast.error("Dashboard verileri yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -46,14 +49,16 @@ const DashboardPage = () => {
   }, [loadDashboard]);
 
   const handleDeleteProduct = async (id) => {
+    if (!id) {
+      return;
+    }
+
     try {
       await deleteProduct(id);
 
       const deletedProduct = products.find((product) => product.id === id);
 
-      setProducts((prev) => {
-        return prev.filter((product) => product.id !== id);
-      });
+      setProducts((prev) => prev.filter((product) => product.id !== id));
 
       setStats((prev) => ({
         ...prev,
@@ -64,10 +69,18 @@ const DashboardPage = () => {
           ? Math.max(0, prev.discountedProducts - 1)
           : prev.discountedProducts,
       }));
+
+      toast.success("Ürün başarıyla silindi.");
     } catch (err) {
       console.error("Ürün silinirken hata oluştu:", err);
 
-      alert("Ürün silinemedi.");
+      if (err?.code === "23503") {
+        toast.error("Ürün silinemiyor. Ürüne bağlı kayıtlar bulunuyor.");
+
+        return;
+      }
+
+      toast.error("Ürün silinirken bir hata oluştu.");
     }
   };
 
