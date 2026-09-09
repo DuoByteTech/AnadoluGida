@@ -1,20 +1,15 @@
 import { Link } from "react-router-dom";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { products } from "@/features/shop/data/products";
 
 const BrandTableRow = ({ brand, onDelete }) => {
-  const productCount = products.filter(
-    (p) => p.brandSlug === brand.slug,
-  ).length;
-
   const modalId = `delete_brand_modal_${brand.id}`;
 
   const openModal = () => {
-    document.getElementById(modalId).showModal();
+    document.getElementById(modalId)?.showModal();
   };
 
   const closeModal = () => {
-    document.getElementById(modalId).close();
+    document.getElementById(modalId)?.close();
   };
 
   const handleDelete = () => {
@@ -31,11 +26,12 @@ const BrandTableRow = ({ brand, onDelete }) => {
         <td>
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-base-200 font-semibold text-base-content">
-              {brand.name.charAt(0)}
+              {brand.name?.charAt(0)?.toUpperCase()}
             </div>
 
             <div>
               <div className="font-semibold">{brand.name}</div>
+
               <div className="text-xs text-base-content/60">
                 slug: {brand.slug}
               </div>
@@ -43,7 +39,7 @@ const BrandTableRow = ({ brand, onDelete }) => {
           </div>
         </td>
 
-        <td>{productCount}</td>
+        <td>{brand.productCount ?? 0}</td>
 
         <td>
           {brand.isActive ? (
@@ -80,6 +76,7 @@ const BrandTableRow = ({ brand, onDelete }) => {
       <dialog id={modalId} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold text-error">Silme Onayı</h3>
+
           <p className="py-4">
             <b>{brand.name}</b> markasını silmek istiyor musunuz?
           </p>

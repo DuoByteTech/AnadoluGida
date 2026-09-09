@@ -1,38 +1,28 @@
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 
-import { products } from "@/features/shop/data/products";
-
-const Breadcrumbs = () => {
-  const { slug } = useParams();
-
-  const product = products.find((p) => p.slug === slug);
-
-  const isShopPage = !slug;
-
+const Breadcrumbs = ({ productName = "" }) => {
   return (
-    <nav className="flex items-center text-sm mb-4 text-base-content/70">
-      {/* Startseite */}
-      <NavLink to="/" className="hover:text-base-content transition">
+    <nav className="mb-4 flex items-center text-sm text-base-content/70">
+      <NavLink to="/" className="transition hover:text-base-content">
         Startseite
       </NavLink>
 
-      <ChevronRightIcon className="w-4 h-4 mx-2 opacity-50" />
+      <ChevronRightIcon className="mx-2 h-4 w-4 opacity-50" />
 
-      {/* Shop */}
-      {isShopPage ? (
-        <span className="font-medium text-base-content">Shop</span>
-      ) : (
-        <NavLink to="/shop" className="hover:text-base-content transition">
+      {productName ? (
+        <NavLink to="/shop" className="transition hover:text-base-content">
           Shop
         </NavLink>
+      ) : (
+        <span className="font-medium text-base-content">Shop</span>
       )}
 
-      {/* Product */}
-      {product && (
+      {productName && (
         <>
-          <ChevronRightIcon className="w-4 h-4 mx-2 opacity-50" />
-          <span className="font-medium text-base-content">{product.name}</span>
+          <ChevronRightIcon className="mx-2 h-4 w-4 opacity-50" />
+
+          <span className="font-medium text-base-content">{productName}</span>
         </>
       )}
     </nav>
